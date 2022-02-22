@@ -53,7 +53,7 @@ def get_image_path(directories_dict, folder, im):
     """
     assert isinstance(folder, str), "Folder name must be a string"
     assert isinstance(im, str), "Image name must be a string"
-    assert isinstance(dictionaries_dict,
+    assert isinstance(directories_dict,
                       dict), "You did not pass a dictionary of directories"
     path = f'{directories_dict[folder]}\\{folder}_{im}.tif'
     assert os.path.exists(path), f'{path} does not exist'
@@ -73,7 +73,7 @@ def get_building_mask_path(directories_dict, im):
 
     """
     assert isinstance(im, str), "Image name must be a string"
-    assert isinstance(dictionaries_dict,
+    assert isinstance(directories_dict,
                       dict), "You did not pass a dictionary of directories"
     path = f'{directories_dict["building_mask"]}\\building_mask_{im}.npy'
     return path
@@ -92,7 +92,7 @@ def get_road_mask_path(directories_dict, im):
 
     """
     assert isinstance(im, str), "Image name must be a string"
-    assert isinstance(dictionaries_dict,
+    assert isinstance(directories_dict,
                       dict), "You did not pass a dictionary of directories"
     path = f'{directories_dict["road_mask"]}\\road_mask_{im}.npy'
     return path
@@ -111,7 +111,7 @@ def get_geopandas_for_image(directories_dict, im):
 
     """
     assert isinstance(im, str), "Image name must be a string"
-    assert isinstance(dictionaries_dict,
+    assert isinstance(directories_dict,
                       dict), "You did not pass a dictionary of directories"
     path = f'{directories_dict["geojson"]}\\buildings\\buildings_{im}.geojson'
     assert os.path.exists(path), f'{path} does not exist'
