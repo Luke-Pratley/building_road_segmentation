@@ -24,7 +24,7 @@ def get_directories_dictionary(data_directory, dataset_index):
     directories_dict - a dictionary that contains the dictories of the images, masks, and geojson files.
 
     """
-    assert isinstance(data_index, int), "data index must be an integer"
+    assert isinstance(dataset_index, int), "data index must be an integer"
     assert isinstance(data_directory, str), "data_directory must be a string"
     datasets = glob.glob(data_directory + '*_Train')
     datasets = [d.split('\\')[-1] for d in datasets]
