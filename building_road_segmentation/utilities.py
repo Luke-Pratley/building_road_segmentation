@@ -52,7 +52,7 @@ def get_image_path(directories_dict, folder, image_name):
     
     """
     assert isinstance(folder, str), "Folder name must be a string"
-    assert isinstance(image, str), "Image name must be a string"
+    assert isinstance(image_name, str), "Image name must be a string"
     assert isinstance(directories_dict,
                       dict), "You did not pass a dictionary of directories"
     path = f'{directories_dict[folder]}\\{folder}_{image_name}.tif'
