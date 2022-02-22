@@ -12,7 +12,7 @@ from rasterio.plot import show
 import matplotlib.pyplot as plt
 
 
-def get_directories_dictionary(data_directory, data_index):
+def get_directories_dictionary(data_directory, dataset_index):
     """ 
     Returns a dictionary of directories within the data directory.
     
