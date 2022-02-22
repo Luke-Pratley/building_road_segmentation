@@ -4,6 +4,7 @@
 import glob
 import os
 
+import numpy as np
 import rasterio
 import geopandas as gpd
 import rasterio.features
