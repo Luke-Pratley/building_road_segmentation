@@ -119,6 +119,39 @@ def get_geopandas_for_image(directories_dict, im):
     return gpd.read_file(path)
 
 
+def plot_image(directories_dict, image_name):
+    """
+    Plots images and building locations for a given image name.
+
+    input:
+    directories_dict - a dictionary that contains the dictories of the images, masks, and geojson files.
+    image_name: The name of the image to plot.
+
+    output:
+    None
+    """
+    assert isinstance(image_name, str), "Image name must be a string"
+    plt.rcParams.update({'font.size': 14})
+    gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
+    fig, ax = plt.subplots(1, 1, sharey=True, sharex=True, figsize=(10, 10))
+    with rasterio.open(
+            get_image_path(directories_dict, 'RGB-PanSharpen',
+                           image_name)) as image:
+        show(image.read() / image.read().max(),
+             ax=ax,
+             adjust=True,
+             transform=image.transform,
+             title=f'RGB-PanSharpen')
+    gpd_buildings_df.plot(ax=ax,
+                          facecolor='red',
+                          edgecolor='red',
+                          alpha=0.5)
+    ax.ticklabel_format(useOffset=False) 
+    ax.set_xlabel('Lon.')
+    ax.set_ylabel('Lat.')
+    fig.tight_layout()
+    plt.show()
+
 def plot_images(directories_dict, image_name):
     """
     Plots images and building locations for a given image name.
