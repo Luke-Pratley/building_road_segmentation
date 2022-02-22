@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import glob
+import os
+
 import rasterio
 import geopandas as gpd
 import rasterio.features
