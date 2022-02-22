@@ -38,24 +38,24 @@ def get_directories_dictionary(data_directory, dataset_index):
     return directories_dict
 
 
-def get_image_path(directories_dict, folder, im):
+def get_image_path(directories_dict, folder, image_name):
     """
     Returns a path to the .tif file given the folder name and the image name
     
     inputs:
-    directories_dict - a dictionary that contains the dictories of the images, masks, and geojson files.
+    directories_dict - a dictionary that contains the dictories of the images, masks, and geojson files._name
     folder - folder name (string)
-    im - image name (string)
+    image_name - image name (string)
     
     output:
     path to the .tif file
     
     """
     assert isinstance(folder, str), "Folder name must be a string"
-    assert isinstance(im, str), "Image name must be a string"
+    assert isinstance(image, str), "Image name must be a string"
     assert isinstance(directories_dict,
                       dict), "You did not pass a dictionary of directories"
-    path = f'{directories_dict[folder]}\\{folder}_{im}.tif'
+    path = f'{directories_dict[folder]}\\{folder}_{image_name}.tif'
     assert os.path.exists(path), f'{path} does not exist'
     return path
 
@@ -185,7 +185,9 @@ def create_mask(directories_dict, image_name):
     
     Output - this is the boolean valued mask where the buildings are
     """
-    with rasterio.open(get_image_path('RGB-PanSharpen', image_name)) as image:
+    with rasterio.open(
+            get_image_path(directories_dict, 'RGB-PanSharpen',
+                           image_name)) as image:
         mask = rasterio.features.geometry_mask(get_geopandas_for_image(
             directories_dict, image_name)['geometry'],
                                                image.shape,
