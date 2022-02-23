@@ -26,8 +26,9 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install rasterio
+        conda install -c conda-forge rasterio
         pip install geopandas
-        pip install tensorflow
+        conda install -c conda-forge tensorflow
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
