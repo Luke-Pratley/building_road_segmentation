@@ -31,7 +31,7 @@ jobs:
         $CONDA/bin/conda install --channel conda-forge --override-channels "gdal>2.2.4"
         $CONDA/bin/conda install -c conda-forge geopandas
         $CONDA/bin/conda install -c conda-forge rasterio
-        $CONDA/bin/pip install tensorflow
+        $CONDA/bin/pip install tf-nightly
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
