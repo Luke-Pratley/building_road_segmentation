@@ -56,14 +56,17 @@ class UpLayer(tf.keras.Model):
         ## TODO: create option to switch between upsampling and transpose convolution
         self.upsample = tf.keras.layers.UpSampling2D(size=(pooling_amount,
                                                            pooling_amount))
-
+        self.concat = tf.keras.layers.Concatenate()
+        self.dropout = tf.keras.layers.Dropout(dropout_rate)
         self.convblock = ConvBlock(number_of_start_kernels, kernel_shape,
                                    activation)
 
     def call(self, input_tensor1, input_tensor2, training=False):
-        x = tf.concatenate([self.upsample(input_tensor1), input_tensor2])
+        x = self.upsample(input_tensor1)
+        x = self.concat([x, input_tensor2])
         x = self.dropout(x, training)
-        return self.convblock(x, training)
+        x = self.convblock(x, training)
+        return x
 
 
 class BasicUnet(tf.keras.Model):
@@ -72,7 +75,6 @@ class BasicUnet(tf.keras.Model):
                  number_of_start_kernels, kernel_shape, activation,
                  pooling_amount, dropout_rate):
         super(tf.keras.Model, self).__init__(name='')
-        self.number_of_categories = number_of_categories
         self.unet_levels = unet_levels
         self.down_blocks = []
         self.up_blocks = []
