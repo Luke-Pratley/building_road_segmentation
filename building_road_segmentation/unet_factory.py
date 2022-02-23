@@ -56,7 +56,7 @@ class UpLayer(tf.keras.Model):
         ## TODO: create option to switch between upsampling and transpose convolution
         self.upsample = tf.keras.layers.UpSampling2D(size=(pooling_amount,
                                                            pooling_amount))
-        self.concat = tf.keras.layers.Concatenate()
+        self.concat = tf.keras.layers.Concatenate(axis=-1)
         self.dropout = tf.keras.layers.Dropout(dropout_rate)
         self.convblock = ConvBlock(number_of_start_kernels, kernel_shape,
                                    activation)
@@ -78,27 +78,37 @@ class BasicUnet(tf.keras.Model):
         self.unet_levels = unet_levels
         self.down_blocks = []
         self.up_blocks = []
+        self.first_layer_conv = tf.keras.layers.Conv2D(number_of_start_kernels,
+                                                       kernel_shape,
+                                                       activation=activation,
+                                                       padding='same')
+
         for k in range(unet_levels):
             self.down_blocks.append(
                 DownLayer(number_of_start_kernels * (k + 1), kernel_shape,
                           activation, pooling_amount, dropout_rate))
         for k in reversed(range(unet_levels)):
             self.up_blocks.append(
-                DownLayer(number_of_start_kernels * (k + 1), kernel_shape,
-                          activation, pooling_amount, dropout_rate))
+                UpLayer(number_of_start_kernels * (k + 1), kernel_shape,
+                        activation, pooling_amount, dropout_rate))
 
-        self.output_layer = tf.keras.layer.Conv2D(number_of_categories, 1,
-                                                  'softmax')
+        self.output_layer = tf.keras.layers.Conv2D(
+            number_of_categories,
+            1,
+            activation='softmax' if number_of_categories > 1 else 'sigmoid',
+            padding='same')
 
     def call(self, input_tensor, training=False):
         down_outputs = []
-        x = self.down_blocks[0](input_tensor, training)
+
+        x = self.first_layer_conv(input_tensor)
         down_outputs.append(x)
-        for k in range(1, self.unet_levels):
-            x = self.down_blocks[k](input_tensor, training)
+        for k in range(0, self.unet_levels):
+            x = self.down_blocks[k](x, training)
             down_outputs.append(x)
-        down_outputs = reversed(down_outputs)
+        down_outputs = down_outputs[::-1]
+
         x = self.up_blocks[0](down_outputs[0], down_outputs[1], training)
-        for k in range(2, self.unet_levels):
-            x = self.up_blocks[k](x, down_outputs[k], training)
+        for k in range(1, self.unet_levels):
+            x = self.up_blocks[k](x, down_outputs[k + 1], training)
         return self.output_layer(x)
