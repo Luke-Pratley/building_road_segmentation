@@ -28,9 +28,9 @@ jobs:
         sudo add-apt-repository ppa:ubuntugis/ppa
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
-        pip install geopandas
+        $CONDA/bin/conda install -c conda-forge geopandas
         $CONDA/bin/conda install -c conda-forge rasterio
-        pip install tensorflow
+        $CONDA/bin/conda install -c conda-forge tensorflow
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
