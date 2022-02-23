@@ -28,10 +28,10 @@ jobs:
         sudo add-apt-repository ppa:ubuntugis/ppa
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
-        conda install gdal
-        conda install -c conda-forge rasterio
-        pip install geopandas
-        conda install -c conda-forge tensorflow
+        $CONDA/bin/conda install --channel conda-forge --override-channels "gdal>2.2.4"
+        $CONDA/bin/conda install -c conda-forge geopandas
+        $CONDA/bin/conda install -c conda-forge rasterio
+        $CONDA/bin/pip3 install --user --upgrade tensorflow 
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -40,4 +40,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest
+        $CONDA/bin/conda install pytest
+        $CONDA/bin/pytest
