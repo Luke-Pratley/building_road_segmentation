@@ -58,7 +58,7 @@ class UpLayer(tf.keras.Model):
                                                            pooling_amount))
 
         self.convblock = ConvBlock(number_of_start_kernels, kernel_shape,
-                               activation)
+                                   activation)
 
     def call(self, input_tensor1, input_tensor2, training=False):
         x = tf.concatenate([self.upsample(input_tensor1), input_tensor2])
@@ -68,26 +68,32 @@ class UpLayer(tf.keras.Model):
 
 class BasicUnet(tf.keras.Model):
 
-    def __init__(self, unet_levels, number_of_start_kernels, kernel_shape, activation,
-                 pooling_amount, dropout_rate):
+    def __init__(self, unet_levels, number_of_start_kernels, kernel_shape,
+                 activation, pooling_amount, dropout_rate):
         super(tf.keras.Model, self).__init__(name='')
+        self.unet_levels = unet_levels
         self.down_blocks = []
         self.up_blocks = []
         for k in range(unet_levels):
-            self.down_blocks.append(DownLayer(number_of_start_kernels * (k + 1), kernel_shape, activation, pooling_amount, dropout_rate))
+            self.down_blocks.append(
+                DownLayer(number_of_start_kernels * (k + 1), kernel_shape,
+                          activation, pooling_amount, dropout_rate))
         for k in reversed(range(unet_levels)):
-            self.up_blocks.append(DownLayer(number_of_start_kernels * (k + 1), kernel_shape, activation, pooling_amount, dropout_rate))
+            self.up_blocks.append(
+                DownLayer(number_of_start_kernels * (k + 1), kernel_shape,
+                          activation, pooling_amount, dropout_rate))
 
         self.output_layer = tf.keras.layer.Conv2D(class_num, 1, 'softmax')
+
     def call(self, input_tensor, training=False):
-        down_outputs= []
+        down_outputs = []
         x = self.down_blocks[0](input_tensor, training)
         down_outputs.append(x)
-        for k in range(1, unet_levels): 
+        for k in range(1, self.unet_levels):
             x = self.down_blocks[k](input_tensor, training)
             down_outputs.append(x)
         down_outputs = reversed(down_outputs)
         x = self.up_blocks[0](down_outputs[0], down_outputs[1], training)
-        for k in range(2, unet_levels): 
+        for k in range(2, self.unet_levels):
             x = self.up_blocks[k](x, down_outputs[k], training)
         return self.output_layer(x)
