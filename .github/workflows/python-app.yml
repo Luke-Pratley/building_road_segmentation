@@ -30,7 +30,6 @@ jobs:
         sudo apt-get install gdal-bin libgdal-dev
         conda install gdal
         pip install rasterio
-        conda install -c conda-forge rasterio
         pip install geopandas
         conda install -c conda-forge tensorflow
     - name: Lint with flake8
