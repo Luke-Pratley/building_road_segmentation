@@ -29,8 +29,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
         pip install geopandas
-        conda install -c conda-forge rasterio
-        conda install -c conda-forge tensorflow
+        pip install rasterio
+        pip install tensorflow
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
