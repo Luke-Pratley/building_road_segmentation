@@ -68,9 +68,11 @@ class UpLayer(tf.keras.Model):
 
 class BasicUnet(tf.keras.Model):
 
-    def __init__(self, unet_levels, number_of_start_kernels, kernel_shape,
-                 activation, pooling_amount, dropout_rate):
+    def __init__(self, number_of_categories, unet_levels,
+                 number_of_start_kernels, kernel_shape, activation,
+                 pooling_amount, dropout_rate):
         super(tf.keras.Model, self).__init__(name='')
+        self.number_of_categories = number_of_categories
         self.unet_levels = unet_levels
         self.down_blocks = []
         self.up_blocks = []
@@ -83,7 +85,8 @@ class BasicUnet(tf.keras.Model):
                 DownLayer(number_of_start_kernels * (k + 1), kernel_shape,
                           activation, pooling_amount, dropout_rate))
 
-        self.output_layer = tf.keras.layer.Conv2D(class_num, 1, 'softmax')
+        self.output_layer = tf.keras.layer.Conv2D(number_of_categories, 1,
+                                                  'softmax')
 
     def call(self, input_tensor, training=False):
         down_outputs = []
