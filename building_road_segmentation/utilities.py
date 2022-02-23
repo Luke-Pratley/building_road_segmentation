@@ -28,8 +28,11 @@ def get_directories_dictionary(data_directory, dataset_index):
     assert isinstance(dataset_index, int), "data index must be an integer"
     assert isinstance(data_directory, str), "data_directory must be a string"
     datasets = glob.glob(data_directory + '*_Train')
+    assert len(
+        data_directory) > 0, "There are no folders in the dataset directory."
+    assert len(data_directory) > dataset_index, "data index is out of range."
     datasets = [d.split('\\')[-1] for d in datasets]
-    directories = glob.glob(data_directory + f'{datasets[dataset_index]}\*')
+    directories = glob.glob(data_directory + f'{datasets[dataset_index]}\\*')
     directories.sort()
     directories_dict = dict()
     for d in directories:
@@ -131,6 +134,8 @@ def plot_image(directories_dict, image_name):
     None
     """
     assert isinstance(image_name, str), "Image name must be a string"
+    assert isinstance(directories_dict,
+                      dict()), "Directories dict must be a dictionary"
     plt.rcParams.update({'font.size': 14})
     gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
     fig, ax = plt.subplots(1, 1, sharey=True, sharex=True, figsize=(10, 10))
@@ -142,15 +147,13 @@ def plot_image(directories_dict, image_name):
              adjust=True,
              transform=image.transform,
              title=f'RGB-PanSharpen')
-    gpd_buildings_df.plot(ax=ax,
-                          facecolor='red',
-                          edgecolor='red',
-                          alpha=0.5)
-    ax.ticklabel_format(useOffset=False) 
+    gpd_buildings_df.plot(ax=ax, facecolor='red', edgecolor='red', alpha=0.5)
+    ax.ticklabel_format(useOffset=False)
     ax.set_xlabel('Lon.')
     ax.set_ylabel('Lat.')
     fig.tight_layout()
     plt.show()
+
 
 def plot_images(directories_dict, image_name):
     """
@@ -164,6 +167,8 @@ def plot_images(directories_dict, image_name):
     None
     """
     assert isinstance(image_name, str), "Image name must be a string"
+    assert isinstance(directories_dict,
+                      dict()), "Directories dict must be a dictionary"
     plt.rcParams.update({'font.size': 14})
     gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
     fig, ax = plt.subplots(2, 2, sharey=True, sharex=True, figsize=(10, 10))
@@ -233,6 +238,8 @@ def create_mask(directories_dict, image_name):
 
 def load_building_mask(directories_dict, image_name):
     assert isinstance(image_name, str), "Image name must be a string"
+    assert isinstance(directories_dict,
+                      dict()), "Directories dict must be a dictionary"
     mask = np.load(get_building_mask_path(directories_dict, image_name))
     assert mask.dtype == bool, "Mask is not a bool"
     return mask
@@ -240,6 +247,8 @@ def load_building_mask(directories_dict, image_name):
 
 def load_road_mask(directories_dict, image_name):
     assert isinstance(image_name, str), "Image name must be a string"
+    assert isinstance(directories_dict,
+                      dict()), "Directories dict must be a dictionary"
     mask = np.load(get_road_mask_path(directories_dict, image_name))
     assert mask.dtype == bool, "Mask is not a bool"
     return mask
@@ -257,7 +266,8 @@ def plot_features_labels(directories_dict, image_name):
     None
     """
     assert isinstance(image_name, str), "Image name must be a string"
-
+    assert isinstance(directories_dict,
+                      dict()), "Directories dict must be a dictionary"
     gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
     fig, ax = plt.subplots(1, 2, sharey=True, sharex=True, figsize=(10, 5))
     with rasterio.open(
