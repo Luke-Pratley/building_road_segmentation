@@ -25,7 +25,9 @@ jobs:
         pip install --upgrade --no-cache-dir setuptools==58.0.2
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        sudo apt install libpq-dev gdal-bin libgdal-dev
+        sudo add-apt-repository ppa:ubuntugis/ppa
+        sudo apt-get update
+        sudo apt-get install gdal-bin libgdal-dev
         conda install gdal
         pip install rasterio
         conda install -c conda-forge rasterio
