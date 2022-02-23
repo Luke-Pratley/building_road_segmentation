@@ -25,6 +25,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install gdal==2.2.3
         pip install rasterio
         conda install -c conda-forge rasterio
         pip install geopandas
