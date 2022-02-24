@@ -48,7 +48,7 @@ class Trainer():
                                       position=1,
                                       leave=False)
             # Iterate over the batches of the dataset.
-            for step, (x_batch_train, y_batch_train) in enumerated_batches:
+            for step, (x_batch_train, y_batch_train) in rain_dataset:
                 self.model.reset_states()
                 callbacks.on_batch_begin(step, logs=logs)
                 callbacks.on_train_batch_begin(step, logs=logs)
