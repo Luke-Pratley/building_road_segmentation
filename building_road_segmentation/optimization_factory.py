@@ -41,7 +41,8 @@ class Trainer():
         for epoch in range(epochs):
             callbacks.on_epoch_begin(epoch, logs=logs)
 
-            for step, (x_batch_train, y_batch_train) in train_dataset:
+            for step, (x_batch_train,
+                       y_batch_train) in enumerate(train_dataset):
                 self.model.reset_states()
                 callbacks.on_batch_begin(step, logs=logs)
                 callbacks.on_train_batch_begin(step, logs=logs)
