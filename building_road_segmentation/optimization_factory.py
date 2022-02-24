@@ -77,8 +77,6 @@ class Trainer():
 
                 val_acc = self.val_acc_metric.result()
                 self.val_acc_metric.reset_states()
-                print("Validation acc: %.4f" % (float(val_acc), ))
-                print("Time taken: %.2fs" % (time.time() - start_time))
             callbacks.on_epoch_end(epoch, logs=logs)
 
         callbacks.on_train_end(logs=logs)
