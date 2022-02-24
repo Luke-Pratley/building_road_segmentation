@@ -32,7 +32,12 @@ class Trainer():
         val_result = self.model(x, training=False)
         self.val_acc_metric.update_state(y, val_result)
 
-    def fit(self, train_dataset, val_dataset, epochs, _callbacks=None):
+    def fit(self,
+            train_dataset,
+            val_dataset,
+            epochs,
+            _callbacks=None,
+            interval=0.5):
         logs = {}
         callbacks = tf.keras.callbacks.CallbackList(_callbacks,
                                                     add_history=True,
@@ -41,9 +46,13 @@ class Trainer():
         for epoch in range(epochs):
             print(f'epoch: {epoch}')
             callbacks.on_epoch_begin(epoch, logs=logs)
-            pb_i = Progbar(len(train_dataset.x), interval=0.1, unit_name="batch")
+            pb_i = Progbar(len(train_dataset.x),
+                           interval=interval,
+                           unit_name="step")
+
             for step, (x_batch_train,
                        y_batch_train) in enumerate(train_dataset):
+
                 self.model.reset_states()
                 callbacks.on_batch_begin(step, logs=logs)
                 callbacks.on_train_batch_begin(step, logs=logs)
@@ -53,6 +62,7 @@ class Trainer():
                 callbacks.on_train_batch_end(step, logs=logs)
                 callbacks.on_batch_end(step, logs=logs)
                 train_acc = self.train_acc_metric.result()
+
                 loss_val = loss_value
                 acc_val = train_acc
                 pb_i.add(train_dataset.batch_size,
@@ -70,6 +80,7 @@ class Trainer():
                 print("Validation acc: %.4f" % (float(val_acc), ))
                 print("Time taken: %.2fs" % (time.time() - start_time))
             callbacks.on_epoch_end(epoch, logs=logs)
+
         callbacks.on_train_end(logs=logs)
         history_object = None
         for cb in callbacks:
