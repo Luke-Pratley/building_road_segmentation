@@ -3,6 +3,7 @@
 
 import tensorflow as tf
 import time
+from tqdm import tqdm
 
 
 class Trainer():
@@ -38,7 +39,7 @@ class Trainer():
 
             # Iterate over the batches of the dataset.
             for step, (x_batch_train,
-                       y_batch_train) in enumerate(train_dataset):
+                       y_batch_train) in enumerate(tqdm(train_dataset)):
                 loss_value = self.train_step(x_batch_train, y_batch_train)
                 # Log every 200 batches.
                 if step % 100 == 0:
