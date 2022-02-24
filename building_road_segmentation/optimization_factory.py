@@ -3,7 +3,6 @@
 
 import tensorflow as tf
 import time
-from tqdm import tqdm
 
 
 class Trainer():
@@ -32,29 +31,21 @@ class Trainer():
         val_result = self.model(x, training=False)
         self.val_acc_metric.update_state(y, val_result)
 
-    def fit(self, train_dataset, val_dataset, epochs, _callbacks=None):
-        logs = {}
-        callbacks = tf.keras.callbacks.CallbackList(_callbacks,
-                                                    add_history=True,
-                                                    model=self.model)
-        callbacks.on_train_begin(logs=logs)
+    def fit(self, train_dataset, val_dataset, epochs):
         for epoch in range(epochs):
-            callbacks.on_epoch_begin(epoch, logs=logs)
+            print("\nStart of epoch %d" % (epoch, ))
+            start_time = time.time()
 
+            # Iterate over the batches of the dataset.
             for step, (x_batch_train,
                        y_batch_train) in enumerate(train_dataset):
-                self.model.reset_states()
-                callbacks.on_batch_begin(step, logs=logs)
-                callbacks.on_train_batch_begin(step, logs=logs)
-
                 loss_value = self.train_step(x_batch_train, y_batch_train)
-
-                callbacks.on_train_batch_end(step, logs=logs)
-                callbacks.on_batch_end(step, logs=logs)
-
                 # Log every 200 batches.
                 if step % 100 == 0:
+                    print(f'Batch {step}')
                     tf.print('Loss', loss_value)
+                    print("Seen so far: %d samples" %
+                          ((step + 1) * train_dataset.batch_size))
 
             # Display metrics at the end of each epoch.
             train_acc = self.train_acc_metric.result()
@@ -71,10 +62,3 @@ class Trainer():
                 self.val_acc_metric.reset_states()
                 print("Validation acc: %.4f" % (float(val_acc), ))
                 print("Time taken: %.2fs" % (time.time() - start_time))
-            callbacks.on_epoch_end(epoch, logs=logs)
-        callbacks.on_train_end(logs=logs)
-        history_object = None
-        for cb in callbacks:
-            if isinstance(cb, tf.keras.callbacks.History):
-                history_object = cb
-        return history_object
