@@ -20,7 +20,7 @@ class read_data(tf.keras.utils.Sequence):
         batch_y = self.y[idx * self.batch_size:(idx + 1) *
         self.batch_size]
 
-        return np.array([np.array(PIL.Image.open(im)) * 255 for im in batch_x], dtype=np.float32), np.array([
+        return np.array([np.array(PIL.Image.open(im)) for im in batch_x], dtype=np.float32), np.array([
             np.load(file_name)
                for file_name in batch_y])
 
