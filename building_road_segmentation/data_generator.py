@@ -4,6 +4,7 @@
 import tensorflow as tf
 import math
 import tensorflow.keras.utils
+import numpy as np
 
 class read_data(tf.keras.utils.Sequence):
 
