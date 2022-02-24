@@ -7,7 +7,7 @@ import tensorflow as tf
 class ConvBlock(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation):
-        super(tf.keras.Model, self).__init__(name='')
+        super(ConvBlock, self).__init__(name='')
         self.conv1 = tf.keras.layers.Conv2D(number_of_start_kernels,
                                             kernel_shape,
                                             padding='same')
@@ -35,7 +35,7 @@ class DownLayer(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
                  pooling_amount, dropout_rate):
-        super(tf.keras.Model, self).__init__(name='')
+        super(DownLayer, self).__init__(name='')
         self.pool = tf.keras.layers.MaxPooling2D(
             (pooling_amount, pooling_amount))
         self.dropout = tf.keras.layers.Dropout(dropout_rate)
@@ -52,7 +52,7 @@ class UpLayer(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
                  pooling_amount, dropout_rate):
-        super(tf.keras.Model, self).__init__(name='')
+        super(UpLayer, self).__init__(name='')
         ## TODO: create option to switch between upsampling and transpose convolution
         self.upsample = tf.keras.layers.UpSampling2D(size=(pooling_amount,
                                                            pooling_amount))
@@ -74,7 +74,7 @@ class BasicUnet(tf.keras.Model):
     def __init__(self, number_of_categories, unet_levels,
                  number_of_start_kernels, kernel_shape, activation,
                  pooling_amount, dropout_rate):
-        super(tf.keras.Model, self).__init__(name='')
+        super(BasicUnet, self).__init__(name='')
         self.unet_levels = unet_levels
         self.down_blocks = []
         self.up_blocks = []
