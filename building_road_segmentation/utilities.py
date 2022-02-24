@@ -135,7 +135,7 @@ def plot_image(directories_dict, image_name):
     """
     assert isinstance(image_name, str), "Image name must be a string"
     assert isinstance(directories_dict,
-                      dict()), "Directories dict must be a dictionary"
+                      dict), "Directories dict must be a dictionary"
     plt.rcParams.update({'font.size': 14})
     gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
     fig, ax = plt.subplots(1, 1, sharey=True, sharex=True, figsize=(10, 10))
@@ -168,7 +168,7 @@ def plot_images(directories_dict, image_name):
     """
     assert isinstance(image_name, str), "Image name must be a string"
     assert isinstance(directories_dict,
-                      dict()), "Directories dict must be a dictionary"
+                      dict), "Directories dict must be a dictionary"
     plt.rcParams.update({'font.size': 14})
     gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
     fig, ax = plt.subplots(2, 2, sharey=True, sharex=True, figsize=(10, 10))
@@ -239,7 +239,7 @@ def create_mask(directories_dict, image_name):
 def load_building_mask(directories_dict, image_name):
     assert isinstance(image_name, str), "Image name must be a string"
     assert isinstance(directories_dict,
-                      dict()), "Directories dict must be a dictionary"
+                      dict), "Directories dict must be a dictionary"
     mask = np.load(get_building_mask_path(directories_dict, image_name))
     assert mask.dtype == bool, "Mask is not a bool"
     return mask
@@ -248,7 +248,7 @@ def load_building_mask(directories_dict, image_name):
 def load_road_mask(directories_dict, image_name):
     assert isinstance(image_name, str), "Image name must be a string"
     assert isinstance(directories_dict,
-                      dict()), "Directories dict must be a dictionary"
+                      dict), "Directories dict must be a dictionary"
     mask = np.load(get_road_mask_path(directories_dict, image_name))
     assert mask.dtype == bool, "Mask is not a bool"
     return mask
@@ -267,7 +267,7 @@ def plot_features_labels(directories_dict, image_name):
     """
     assert isinstance(image_name, str), "Image name must be a string"
     assert isinstance(directories_dict,
-                      dict()), "Directories dict must be a dictionary"
+                      dict), "Directories dict must be a dictionary"
     gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
     fig, ax = plt.subplots(1, 2, sharey=True, sharex=True, figsize=(10, 5))
     with rasterio.open(
