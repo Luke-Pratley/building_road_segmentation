@@ -2,23 +2,23 @@
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
-import tensorflow.keras
+from tensorflow import keras
 
-class ConvBlock(tf.keras.Model):
+class ConvBlock(keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation):
-        super(tf.keras.Model, self).__init__(name='')
-        self.conv1 = tf.keras.layers.Conv2D(number_of_start_kernels,
+        super(keras.Model, self).__init__(name='')
+        self.conv1 = keras.layers.Conv2D(number_of_start_kernels,
                                             kernel_shape,
                                             padding='same')
-        self.bn1 = tf.keras.layers.BatchNormalization()
-        self.activation1 = tf.keras.layers.Activation(activation)
+        self.bn1 = keras.layers.BatchNormalization()
+        self.activation1 = keras.layers.Activation(activation)
 
-        self.conv2 = tf.keras.layers.Conv2D(number_of_start_kernels,
+        self.conv2 = keras.layers.Conv2D(number_of_start_kernels,
                                             kernel_shape,
                                             padding='same')
-        self.bn2 = tf.keras.layers.BatchNormalization()
-        self.activation2 = tf.keras.layers.Activation(activation)
+        self.bn2 = keras.layers.BatchNormalization()
+        self.activation2 = keras.layers.Activation(activation)
 
     def call(self, input_tensor, training=False):
         x = self.conv1(input_tensor)
@@ -31,14 +31,14 @@ class ConvBlock(tf.keras.Model):
         return x
 
 
-class DownLayer(tf.keras.Model):
+class DownLayer(keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
                  pooling_amount, dropout_rate):
-        super(tf.keras.Model, self).__init__(name='')
-        self.pool = tf.keras.layers.MaxPooling2D(
+        super(keras.Model, self).__init__(name='')
+        self.pool = keras.layers.MaxPooling2D(
             (pooling_amount, pooling_amount))
-        self.dropout = tf.keras.layers.Dropout(dropout_rate)
+        self.dropout = keras.layers.Dropout(dropout_rate)
         self.convblock = ConvBlock(number_of_start_kernels, kernel_shape,
                                    activation)
 
@@ -48,16 +48,16 @@ class DownLayer(tf.keras.Model):
         return self.convblock(x, training)
 
 
-class UpLayer(tf.keras.Model):
+class UpLayer(keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
                  pooling_amount, dropout_rate):
-        super(tf.keras.Model, self).__init__(name='')
+        super(keras.Model, self).__init__(name='')
         ## TODO: create option to switch between upsampling and transpose convolution
-        self.upsample = tf.keras.layers.UpSampling2D(size=(pooling_amount,
+        self.upsample = keras.layers.UpSampling2D(size=(pooling_amount,
                                                            pooling_amount))
-        self.concat = tf.keras.layers.Concatenate(axis=-1)
-        self.dropout = tf.keras.layers.Dropout(dropout_rate)
+        self.concat = keras.layers.Concatenate(axis=-1)
+        self.dropout = keras.layers.Dropout(dropout_rate)
         self.convblock = ConvBlock(number_of_start_kernels, kernel_shape,
                                    activation)
 
@@ -69,16 +69,16 @@ class UpLayer(tf.keras.Model):
         return x
 
 
-class BasicUnet(tf.keras.Model):
+class BasicUnet(keras.Model):
 
     def __init__(self, number_of_categories, unet_levels,
                  number_of_start_kernels, kernel_shape, activation,
                  pooling_amount, dropout_rate):
-        super(tf.keras.Model, self).__init__(name='')
+        super(keras.Model, self).__init__(name='')
         self.unet_levels = unet_levels
         self.down_blocks = []
         self.up_blocks = []
-        self.first_layer_conv = tf.keras.layers.Conv2D(number_of_start_kernels,
+        self.first_layer_conv = keras.layers.Conv2D(number_of_start_kernels,
                                                        kernel_shape,
                                                        activation=activation,
                                                        padding='same')
@@ -92,7 +92,7 @@ class BasicUnet(tf.keras.Model):
                 UpLayer(number_of_start_kernels * (k + 1), kernel_shape,
                         activation, pooling_amount, dropout_rate))
 
-        self.output_layer = tf.keras.layers.Conv2D(
+        self.output_layer = keras.layers.Conv2D(
             number_of_categories,
             1,
             activation='softmax' if number_of_categories > 1 else 'sigmoid',
