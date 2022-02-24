@@ -5,13 +5,13 @@ import pytest
 import tensorflow as tf
 import tensorflow.keras
 
-import building_road_segmentation
+import building_road_segmentation.unet_factory as unet_factory
 import numpy as np
 
 
 def test_conv_block():
 
-    block = building_road_segmentation.ConvBlock(number_of_start_kernels=8,
+    block = unet_factory.ConvBlock(number_of_start_kernels=8,
                                                  kernel_shape=(3, 3),
                                                  activation=tf.nn.relu)
     assert isinstance(block, tf.keras.Model)
@@ -31,7 +31,7 @@ def test_conv_block():
 
 def test_downlayer():
 
-    x = building_road_segmentation.DownLayer(number_of_start_kernels=8,
+    x = unet_factory.DownLayer(number_of_start_kernels=8,
                                              kernel_shape=(3, 3),
                                              activation=tf.nn.relu,
                                              pooling_amount=2,
@@ -44,12 +44,12 @@ def test_downlayer():
     assert len(blocks)  == 3
     assert isinstance(blocks[0], tf.keras.layers.MaxPooling2D)
     assert isinstance(blocks[1], tf.keras.layers.Dropout)
-    assert isinstance(blocks[2], building_road_segmentation.ConvBlock)
+    assert isinstance(blocks[2], unet_factory.ConvBlock)
 
 
 def test_uplayer():
 
-    x = building_road_segmentation.UpLayer(number_of_start_kernels=8,
+    x = unet_factory.UpLayer(number_of_start_kernels=8,
                                            kernel_shape=(3, 3),
                                            activation=tf.nn.relu,
                                            pooling_amount=2,
@@ -65,13 +65,13 @@ def test_uplayer():
     assert isinstance(blocks[0], tf.keras.layers.UpSampling2D)
     assert isinstance(blocks[1], tf.keras.layers.Concatenate)
     assert isinstance(blocks[2], tf.keras.layers.Dropout)
-    assert isinstance(blocks[3], building_road_segmentation.ConvBlock)
+    assert isinstance(blocks[3], unet_factory.ConvBlock)
 
 
 def test_basic_unet():
     unet_levels = 6
     number_of_categories = 1
-    x = building_road_segmentation.BasicUnet(
+    x = unet_factory.BasicUnet(
         number_of_categories=number_of_categories,
         unet_levels=unet_levels,
         number_of_start_kernels=4,
@@ -89,7 +89,7 @@ def test_basic_unet():
     assert isinstance(blocks[-1], tf.keras.layers.Conv2D)
     assert isinstance(blocks[-2], tf.keras.layers.Conv2D)
     for b in range(unet_levels):
-        assert isinstance(blocks[b], building_road_segmentation.DownLayer)
+        assert isinstance(blocks[b], unet_factory.DownLayer)
     for b in range(unet_levels):
         assert isinstance(blocks[b + unet_levels],
-                          building_road_segmentation.UpLayer)
+                          unet_factory.UpLayer)

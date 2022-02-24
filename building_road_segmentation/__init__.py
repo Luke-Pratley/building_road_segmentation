@@ -4,4 +4,3 @@
 __all__ = ['utilities', 'unet_factory']
 
 from .utilities import *
-from .unet_factory import *
