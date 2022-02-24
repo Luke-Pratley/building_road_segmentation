@@ -3,7 +3,7 @@
 
 import tensorflow as tf
 import time
-from tqdm import tqdm
+from tensorflow.keras.utils import Progbar
 
 
 class Trainer():
@@ -38,9 +38,12 @@ class Trainer():
                                                     add_history=True,
                                                     model=self.model)
         callbacks.on_train_begin(logs=logs)
+        metrics_names = ['loss', 'accuracy']
         for epoch in range(epochs):
+            print(f'epoch: {epoch}')
             callbacks.on_epoch_begin(epoch, logs=logs)
-
+            pb_i = Progbar(train_dataset.x.shape[0],
+                           stateful_metrics=metrics_names)
             for step, (x_batch_train,
                        y_batch_train) in enumerate(train_dataset):
                 self.model.reset_states()
@@ -51,13 +54,12 @@ class Trainer():
 
                 callbacks.on_train_batch_end(step, logs=logs)
                 callbacks.on_batch_end(step, logs=logs)
-
-                if step % 50 == 0:
-                    tf.print('Loss', loss_value)
-
-            # Display metrics at the end of each epoch.
-            train_acc = self.train_acc_metric.result()
-            tf.print("Training acc", (train_acc))
+                train_acc = self.train_acc_metric.result()
+                loss_val = loss_value
+                acc_val = train_acc
+                print(loss_val)
+                pb_i.add(train_dataset.batch_size,
+                         values=[('loss', loss_val), ('acc', acc_val)])
 
             # Reset training metrics at the end of each epoch
             self.train_acc_metric.reset_states()
