@@ -4,7 +4,6 @@
 import pytest
 import tensorflow as tf
 import tensorflow.keras
-import tensorflow_addons as tfa
 import tqdm
 
 
@@ -112,7 +111,6 @@ def test_trainer():
     data_gen = data_generator.test_data(np.random.normal(0, 16, (128, 16)),
                                         np.random.uniform(0, 1, (128, 1)), 4)
 
-    tqdm_callback = tfa.callbacks.TQDMProgressBar()
     trainer = optimization_factory.Trainer(model, loss_fn, optimizer,
                                            train_acc_metric, val_acc_metric,
                                            )
