@@ -42,7 +42,7 @@ class Trainer():
         for epoch in range(epochs):
             print(f'epoch: {epoch}')
             callbacks.on_epoch_begin(epoch, logs=logs)
-            pb_i = Progbar(train_dataset.x.shape[0],
+            pb_i = Progbar(len(train_dataset.x),
                            stateful_metrics=metrics_names)
             for step, (x_batch_train,
                        y_batch_train) in enumerate(train_dataset):
@@ -57,7 +57,6 @@ class Trainer():
                 train_acc = self.train_acc_metric.result()
                 loss_val = loss_value
                 acc_val = train_acc
-                print(loss_val)
                 pb_i.add(train_dataset.batch_size,
                          values=[('loss', loss_val), ('acc', acc_val)])
 
