@@ -39,9 +39,9 @@ class Trainer():
                                                     model=self.model)
         callbacks.on_train_begin(logs=logs)
         for epoch in range(epochs):
-            print(f'Epoch: {epoch}')
+            print(f'epoch: {epoch}')
             callbacks.on_epoch_begin(epoch, logs=logs)
-            pb_i = Progbar(train_dataset.__len__(), interval=0.1, unit_name="batch")
+            pb_i = Progbar(len(train_dataset.x), interval=0.1, unit_name="batch")
             for step, (x_batch_train,
                        y_batch_train) in enumerate(train_dataset):
                 self.model.reset_states()
@@ -55,7 +55,8 @@ class Trainer():
                 train_acc = self.train_acc_metric.result()
                 loss_val = loss_value
                 acc_val = train_acc
-                pb_i.add(step, values=[('loss', loss_val), ('acc', acc_val)])
+                pb_i.add(train_dataset.batch_size,
+                         values=[('loss', loss_val), ('acc', acc_val)])
 
             # Reset training metrics at the end of each epoch
             self.train_acc_metric.reset_states()
