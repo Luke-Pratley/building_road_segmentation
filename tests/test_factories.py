@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import pytest
+import tensorflow as tf
+import tensorflow.keras
+
+import building_road_segmentation
+import numpy as np
+
+
+def test_conv_block():
+
+    block = building_road_segmentation.ConvBlock(number_of_start_kernels=8,
+                                                 kernel_shape=(3, 3),
+                                                 activation=tf.nn.relu)
+    assert isinstance(block, tf.keras.Model)
+    inp = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)), dtype=np.float32)
+    out = block(inp)
+    assert (out.shape == (4, 16, 16, 8))
+    assert (out.shape.as_list() == [4, 16, 16, 8])
+    blocks = block.layers
+    assert len(blocks)  == 6
+    assert isinstance(blocks[0], tf.keras.layers.Conv2D)
+    assert isinstance(blocks[1], tf.keras.layers.BatchNormalization)
+    assert isinstance(blocks[2], tf.keras.layers.Activation)
+    assert isinstance(blocks[3], tf.keras.layers.Conv2D)
+    assert isinstance(blocks[4], tf.keras.layers.BatchNormalization)
+    assert isinstance(blocks[5], tf.keras.layers.Activation)
+
+
+def test_downlayer():
+
+    x = building_road_segmentation.DownLayer(number_of_start_kernels=8,
+                                             kernel_shape=(3, 3),
+                                             activation=tf.nn.relu,
+                                             pooling_amount=2,
+                                             dropout_rate=0.5)
+    assert isinstance(x, tf.keras.Model)
+    inp = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)), dtype=np.float32)
+    out = x(inp)
+    assert (out.shape.as_list() == [4, 8, 8, 8])
+    blocks = x.layers
+    assert len(blocks)  == 3
+    assert isinstance(blocks[0], tf.keras.layers.MaxPooling2D)
+    assert isinstance(blocks[1], tf.keras.layers.Dropout)
+    assert isinstance(blocks[2], building_road_segmentation.ConvBlock)
+
+
+def test_uplayer():
+
+    x = building_road_segmentation.UpLayer(number_of_start_kernels=8,
+                                           kernel_shape=(3, 3),
+                                           activation=tf.nn.relu,
+                                           pooling_amount=2,
+                                           dropout_rate=0.5)
+    assert isinstance(x, tf.keras.Model)
+    inp1 = tf.constant(np.random.normal(0, 1, (4, 8, 8, 3)), dtype=np.float32)
+    inp2 = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)),
+                       dtype=np.float32)
+    out = x(inp1, inp2)
+    assert (out.shape.as_list() == [4, 16, 16, 8])
+    blocks = x.layers
+    assert len(blocks)  == 4
+    assert isinstance(blocks[0], tf.keras.layers.UpSampling2D)
+    assert isinstance(blocks[1], tf.keras.layers.Concatenate)
+    assert isinstance(blocks[2], tf.keras.layers.Dropout)
+    assert isinstance(blocks[3], building_road_segmentation.ConvBlock)
+
+
+def test_basic_unet():
+    unet_levels = 6
+    number_of_categories = 1
+    x = building_road_segmentation.BasicUnet(
+        number_of_categories=number_of_categories,
+        unet_levels=unet_levels,
+        number_of_start_kernels=4,
+        kernel_shape=(3, 3),
+        activation='relu',
+        pooling_amount=2,
+        dropout_rate=0.5)
+    inp = tf.constant(np.random.normal(0, 1, (4, 128, 128, 3)), dtype=np.float32)
+    output = x(inp)
+    print(x.summary())
+    assert (output.shape.as_list() == [4, 128, 128, 1])
+    blocks = x.layers
+    print([type(b) for b in blocks])
+    assert len(blocks)  == 2 * unet_levels + 2
+    assert isinstance(blocks[-1], tf.keras.layers.Conv2D)
+    assert isinstance(blocks[-2], tf.keras.layers.Conv2D)
+    for b in range(unet_levels):
+        assert isinstance(blocks[b], building_road_segmentation.DownLayer)
+    for b in range(unet_levels):
+        assert isinstance(blocks[b + unet_levels],
+                          building_road_segmentation.UpLayer)
