@@ -37,11 +37,11 @@ class Trainer():
         callbacks = tf.keras.callbacks.CallbackList(_callbacks,
                                                     add_history=True,
                                                     model=self.model)
-        callbacks.on_train_begin(logs=logs, interval=0.1, unit_name="batch")
+        callbacks.on_train_begin(logs=logs)
         for epoch in range(epochs):
             print(f'Epoch: {epoch}')
             callbacks.on_epoch_begin(epoch, logs=logs)
-            pb_i = Progbar(len(train_dataset.__len__()))
+            pb_i = Progbar(train_dataset.__len__(), interval=0.1, unit_name="batch")
             for step, (x_batch_train,
                        y_batch_train) in enumerate(train_dataset):
                 self.model.reset_states()
