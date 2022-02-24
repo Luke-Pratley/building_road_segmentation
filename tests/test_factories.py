@@ -4,7 +4,6 @@
 import pytest
 import tensorflow as tf
 import tensorflow.keras
-import tqdm
 
 
 import building_road_segmentation.unet_factory as unet_factory
