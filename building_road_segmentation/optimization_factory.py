@@ -38,12 +38,10 @@ class Trainer():
                                                     add_history=True,
                                                     model=self.model)
         callbacks.on_train_begin(logs=logs)
-        metrics_names = ['loss', 'accuracy']
         for epoch in range(epochs):
-            print(f'epoch: {epoch}')
+            print(f'Epoch: {epoch}')
             callbacks.on_epoch_begin(epoch, logs=logs)
-            pb_i = Progbar(len(train_dataset.x),
-                           stateful_metrics=metrics_names)
+            pb_i = Progbar(len(train_dataset.x))
             for step, (x_batch_train,
                        y_batch_train) in enumerate(train_dataset):
                 self.model.reset_states()
