@@ -41,14 +41,7 @@ class Trainer():
         for epoch in range(epochs):
             callbacks.on_epoch_begin(epoch, logs=logs)
 
-            # Presentation
-            enumerated_batches = tqdm(enumerate(train_dataset),
-                                      desc="Batch",
-                                      unit="batch",
-                                      position=1,
-                                      leave=False)
-            # Iterate over the batches of the dataset.
-            for step, (x_batch_train, y_batch_train) in rain_dataset:
+            for step, (x_batch_train, y_batch_train) in train_dataset:
                 self.model.reset_states()
                 callbacks.on_batch_begin(step, logs=logs)
                 callbacks.on_train_batch_begin(step, logs=logs)
