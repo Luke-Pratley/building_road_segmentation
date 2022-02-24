@@ -3,6 +3,7 @@
 
 import pytest
 import tensorflow as tf
+import tensorflow.keras
 
 import building_road_segmentation
 import numpy as np
