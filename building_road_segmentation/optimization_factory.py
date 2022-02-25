@@ -94,13 +94,17 @@ class Trainer():
                              ])
             # Reset training metrics at the end of each epoch
             for key, metric in self.val_metrics.items():
-                logs[key] = metric.result()
                 if key != 'loss':
+                    logs[key] = metric.result()
                     metric.reset_states()
+                else
+                    logs[key] = metric
             for key, metric in self.train_metrics.items():
-                logs[key] = metric.result()
                 if key != 'loss':
+                    logs[key] = metric.result()
                     metric.reset_states()
+                else
+                    logs[key] = metric
             callbacks.on_epoch_end(epoch, logs=logs)
 
         callbacks.on_train_end(logs=logs)
