@@ -80,16 +80,15 @@ class Trainer():
             # Reset training metrics at the end of each epoch
             self.train_acc_metric.reset_states()
             if val_dataset != None:
-                pb_i = Progbar(len(train_dataset.x),
+                pb_i = Progbar(len(val_dataset.x),
                                interval=interval,
                                unit_name="step")
                 # Run a validation loop at the end of each epoch.
                 for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
                     self.test_step(x_batch_val, y_batch_val)
-                    pb_i.add(test_dataset.batch_size,
-                             values=[('loss', loss_val), ('acc', acc_val)] +
-                             [(t[0], t[1].result())
-                              for t in self.train_metrics])
+                    test_acc = self.test_acc_metric.result()
+                    pb_i.add(val_dataset.batch_size,
+                             values=[('acc', acc_val)])
 
                 val_acc = self.val_acc_metric.result()
                 self.val_acc_metric.reset_states()
