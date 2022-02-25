@@ -86,7 +86,9 @@ class Trainer():
                 # Run a validation loop at the end of each epoch.
                 for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
                     self.test_step(x_batch_val, y_batch_val)
-                    pb_i.add(val_dataset.batch_size, values=[('val_acc', val_acc)])
+                    pb_i.add(val_dataset.batch_size,
+                             values=[('val_acc', self.val_acc_metric.result())
+                                     ])
 
                 self.val_acc_metric.reset_states()
             callbacks.on_epoch_end(epoch, logs=logs)
