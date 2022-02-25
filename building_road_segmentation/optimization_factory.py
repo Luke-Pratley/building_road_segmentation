@@ -32,7 +32,7 @@ class Trainer():
         for key, metric in self.train_metrics.items():
             if key != 'loss':
                 metric.update_state(y, result)
-        self.train_metrics['loss'] = loss_value
+        self.train_metrics['loss'] = float(loss_value)
 
     @tf.function
     def test_step(self, x, y):
