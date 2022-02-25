@@ -67,7 +67,7 @@ class Trainer():
 
                 loss_val = self.train_step(x_batch_train, y_batch_train)
 
-                self.train_metrics['loss'] = float(loss_val)
+                self.train_metrics['loss'] = loss_val.eval()
 
                 callbacks.on_train_batch_end(step, logs=logs)
                 callbacks.on_batch_end(step, logs=logs)
@@ -101,7 +101,7 @@ class Trainer():
                     logs[key] = metric.result()
                     metric.reset_states()
                 else:
-                    logs[key] = metric.eval()
+                    logs[key] = metric
             callbacks.on_epoch_end(epoch, logs=logs)
 
         callbacks.on_train_end(logs=logs)
