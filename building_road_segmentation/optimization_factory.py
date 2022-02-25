@@ -8,8 +8,13 @@ from tensorflow.keras.utils import Progbar
 
 class Trainer():
 
-    def __init__(self, model, loss_fn, optimizer, train_acc_metric,
-                 val_acc_metric, train_metrics = []):
+    def __init__(self,
+                 model,
+                 loss_fn,
+                 optimizer,
+                 train_acc_metric,
+                 val_acc_metric,
+                 train_metrics=[]):
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer = optimizer
@@ -75,9 +80,16 @@ class Trainer():
             # Reset training metrics at the end of each epoch
             self.train_acc_metric.reset_states()
             if val_dataset != None:
+                pb_i = Progbar(len(train_dataset.x),
+                               interval=interval,
+                               unit_name="step")
                 # Run a validation loop at the end of each epoch.
-                for x_batch_val, y_batch_val in val_dataset:
+                for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
                     self.test_step(x_batch_val, y_batch_val)
+                    pb_i.add(test_dataset.batch_size,
+                             values=[('loss', loss_val), ('acc', acc_val)] +
+                             [(t[0], t[1].result())
+                              for t in self.train_metrics])
 
                 val_acc = self.val_acc_metric.result()
                 self.val_acc_metric.reset_states()
