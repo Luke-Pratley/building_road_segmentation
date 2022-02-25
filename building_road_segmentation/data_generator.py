@@ -41,8 +41,8 @@ class read_and_augment_data(tf.keras.utils.Sequence):
 
     def __init__(self, x_set, y_set, batch_size):
         self.batch_size = batch_size
-        x_set = []
-        y_set = []
+        self.x = []
+        self.y = []
         for aug in self.Augment:
             self.x += [(k, aug) for k in x_set]
             self.y += [(k, aug) for k in y_set]
