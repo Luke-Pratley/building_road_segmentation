@@ -58,9 +58,8 @@ class Trainer():
                            interval=interval,
                            unit_name="step")
 
-            for step, ((x_batch_train, y_batch_train),
-                       (x_batch_val, y_batch_val)) in enumerate(
-                           zip(train_dataset, val_dataset)):
+            for step, (x_batch_train,
+                       y_batch_train) in enumerate(train_dataset):
 
                 self.model.reset_states()
                 callbacks.on_batch_begin(step, logs=logs)
@@ -81,18 +80,18 @@ class Trainer():
             # Reset training metrics at the end of each epoch
             self.train_acc_metric.reset_states()
             if val_dataset != None:
+                pb_i = Progbar(len(val_dataset.x),
+                               interval=interval,
+                               unit_name="step")
                 # Run a validation loop at the end of each epoch.
-                self.test_step(x_batch_val, y_batch_val)
-                test_acc = self.test_acc_metric.result()
-                pb_i.add(val_dataset.batch_size,
-                         values=[('val_acc', test_val)])
+                for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
+                    self.test_step(x_batch_val, y_batch_val)
+                    test_acc = self.test_acc_metric.result()
+                    pb_i.add(val_dataset.batch_size,
+                             values=[('acc', test_val)])
 
                 val_acc = self.val_acc_metric.result()
                 self.val_acc_metric.reset_states()
-            pb_i.add(train_dataset.batch_size,
-                     values=[('loss', loss_val), ('acc', acc_val)] +
-                     [(t[0], t[1].result()) for t in self.train_metrics] +
-                     [None if val_dataset == None else ('val_acc', val_acc)])
             callbacks.on_epoch_end(epoch, logs=logs)
 
         callbacks.on_train_end(logs=logs)
