@@ -99,7 +99,8 @@ class Trainer():
                 if key != 'loss':
                     metric.reset_states()
             for key, metric in self.train_metrics.items():
-                metric.reset_states()
+                if key != 'loss':
+                    metric.reset_states()
             callbacks.on_epoch_end(epoch, logs=logs)
 
         callbacks.on_train_end(logs=logs)
