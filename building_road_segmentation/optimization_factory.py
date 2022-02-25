@@ -38,7 +38,7 @@ class Trainer():
     def test_step(self, x, y):
         val_result = self.model(x, training=False)
         for key, metric in self.val_metrics.items():
-            metric.update_state(y, result)
+            metric.update_state(y, val_result)
 
     def fit(self,
             train_dataset,
