@@ -77,7 +77,6 @@ class Trainer():
                           (key, metric)
                           for key, metric in self.train_metrics.items()])
 
-                logs = dict(self.train_metrics, **self.val_metrics)
             if val_dataset != None and self.val_metrics != None:
                 assert len(
                     self.val_metrics
@@ -93,12 +92,13 @@ class Trainer():
                                  (key, metric.result())
                                  for key, metric in self.val_metrics.items()
                              ])
-            logs = dict(self.train_metrics, **self.val_metrics)
             # Reset training metrics at the end of each epoch
             for key, metric in self.val_metrics.items():
+                logs[key] = metric
                 if key != 'loss':
                     metric.reset_states()
             for key, metric in self.train_metrics.items():
+                logs[key] = metric
                 if key != 'loss':
                     metric.reset_states()
             callbacks.on_epoch_end(epoch, logs=logs)
