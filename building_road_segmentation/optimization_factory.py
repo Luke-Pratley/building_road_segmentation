@@ -98,13 +98,13 @@ class Trainer():
                     logs[key] = metric.result()
                     metric.reset_states()
                 else:
-                    logs[key] = metric
+                    logs[key] = metric.value()
             for key, metric in self.train_metrics.items():
                 if key != 'loss':
                     logs[key] = metric.result()
                     metric.reset_states()
                 else:
-                    logs[key] = metric
+                    logs[key] = metric.value()
             callbacks.on_epoch_end(epoch, logs=logs)
 
         callbacks.on_train_end(logs=logs)
