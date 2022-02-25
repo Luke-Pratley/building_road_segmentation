@@ -52,7 +52,7 @@ class Trainer():
                                                     model=self.model)
         callbacks.on_train_begin(logs=logs)
         for epoch in range(epochs):
-            print(f'epoch: {epoch}')
+            print(f'Epoch: {epoch}')
             callbacks.on_epoch_begin(epoch, logs=logs)
             pb_i = Progbar(len(train_dataset.x),
                            interval=interval,
@@ -88,7 +88,7 @@ class Trainer():
                     self.test_step(x_batch_val, y_batch_val)
                     test_acc = self.test_acc_metric.result()
                     pb_i.add(val_dataset.batch_size,
-                             values=[('acc', acc_val)])
+                             values=[('val_acc', test_val)])
 
                 val_acc = self.val_acc_metric.result()
                 self.val_acc_metric.reset_states()
