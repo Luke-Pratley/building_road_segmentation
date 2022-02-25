@@ -43,7 +43,7 @@ class read_and_augment_data(tf.keras.utils.Sequence):
         self.batch_size = batch_size
         x_set = []
         y_set = []
-        for aug in Augment:
+        for aug in self.Augment:
             self.x += [(k, aug) for k in x_set]
             self.y += [(k, aug) for k in y_set]
 
@@ -65,15 +65,15 @@ class read_and_augment_data(tf.keras.utils.Sequence):
                         ])
 
     def apply_augment(image, aug):
-        if aug is Augment.ORIGINAL:
+        if aug is self.Augment.ORIGINAL:
             return image
-        if aug is Augment.LRFLIP:
+        if aug is self.Augment.LRFLIP:
             return tf.image.flip_left_right(image)
-        if aug is Augment.UDFLIP:
+        if aug is self.Augment.UDFLIP:
             return tf.image.flip_up_down(image)
-        if aug is Augment.ROT90:
+        if aug is self.Augment.ROT90:
             return tf.image.rot90(image)
-        if aug is Augment.ROT270:
+        if aug is self.Augment.ROT270:
             return tf.image.rot90(image, k=3)
 
 
