@@ -62,17 +62,16 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
         if aug is self.Augment.ROT270:
             return tf.image.rot90(image, k=3)
 
-
     def __getitem__(self, idx):
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
         X, y = np.array([
-            apply_augment(np.array(PIL.Image.open(im[0])) / 255., im[1])
+            self.apply_augment(np.array(PIL.Image.open(im[0])) / 255., im[1])
             for im in batch_x
         ],
                         dtype=np.float32), np.array([
-                            apply_augment(
+                            self.apply_augment(
                                 ynp.load(file_name[0]).astype(np.float32),
                                 file_name[1]) for file_name in batch_y
                         ])
