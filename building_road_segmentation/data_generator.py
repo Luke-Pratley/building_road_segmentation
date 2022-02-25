@@ -50,7 +50,7 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
     def __len__(self):
         return math.ceil(len(self.x) / self.batch_size)
 
-    def apply_augment(image, aug):
+    def apply_augment(self, image, aug):
         if aug is self.Augment.ORIGINAL:
             return image
         if aug is self.Augment.LRFLIP:
@@ -72,7 +72,7 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
         ],
                         dtype=np.float32), np.array([
                             self.apply_augment(
-                                ynp.load(file_name[0]).astype(np.float32),
+                                np.load(file_name[0]).astype(np.float32),
                                 file_name[1]) for file_name in batch_y
                         ])
 
