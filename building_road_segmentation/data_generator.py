@@ -24,7 +24,7 @@ class read_data(tf.keras.utils.Sequence):
         return np.array(
             [np.array(PIL.Image.open(im)) / 255. for im in batch_x],
             dtype=np.float32), np.array([
-                np.load(file_name, allow_pickle=False).astype(np.float32)
+                np.load(file_name, allow_pickle=True).astype(np.float32)
                 for file_name in batch_y
             ])
 
