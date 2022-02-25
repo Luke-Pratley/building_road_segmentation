@@ -73,7 +73,7 @@ class Trainer():
 
                 loss_val = loss_value
                 acc_val = train_acc
-                pb_i.add(train_dataset.batch_size,
+                pb_i.add(x_batch_train.shape[0],
                          values=[('loss', loss_val), ('acc', acc_val)] +
                          [(t[0], t[1].result()) for t in self.train_metrics])
 
@@ -86,7 +86,7 @@ class Trainer():
                 # Run a validation loop at the end of each epoch.
                 for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
                     self.test_step(x_batch_val, y_batch_val)
-                    pb_i.add(val_dataset.batch_size,
+                    pb_i.add(x_batch_val.shape[0],
                              values=[('val_acc', self.val_acc_metric.result())
                                      ])
 
