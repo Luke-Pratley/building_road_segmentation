@@ -78,7 +78,7 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
                         ])
 
 
-class test_data(tf.keras.utils.Sequence):
+class TEST_DATA(tf.keras.utils.Sequence):
 
     def __init__(self, x_set, y_set, batch_size):
         self.x, self.y = x_set, y_set
