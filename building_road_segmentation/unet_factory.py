@@ -7,7 +7,7 @@ import tensorflow as tf
 class ConvBlock(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
-                 kernel_initalizer):
+                 kernel_initializer):
         super(ConvBlock, self).__init__(name='')
         self.conv1 = tf.keras.layers.Conv2D(
             number_of_start_kernels,
@@ -39,7 +39,7 @@ class ConvBlock(tf.keras.Model):
 class DownLayer(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
-                 pooling_amount, dropout_rate, kernel_initalizer):
+                 pooling_amount, dropout_rate, kernel_initializer):
         super(DownLayer, self).__init__(name='')
         self.pool = tf.keras.layers.MaxPooling2D(
             (pooling_amount, pooling_amount))
