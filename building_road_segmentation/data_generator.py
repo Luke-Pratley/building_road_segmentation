@@ -21,11 +21,12 @@ class read_data(tf.keras.utils.Sequence):
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
-        return np.array([np.array(PIL.Image.open(im))/255. for im in batch_x],
-                        dtype=np.float32), np.array([
-                            np.load(file_name).astype(np.float32)
-                            for file_name in batch_y
-                        ])
+        return np.array(
+            [np.array(PIL.Image.open(im)) / 255. for im in batch_x],
+            dtype=np.float32), np.array([
+                np.load(file_name, allow_pickle=False).astype(np.float32)
+                for file_name in batch_y
+            ])
 
 
 class test_data(tf.keras.utils.Sequence):
