@@ -25,7 +25,7 @@ class Trainer():
     def train_step(self, x, y):
         with tf.GradientTape() as tape:
             result = self.model(x, training=True)
-            loss_value = self.train_metrics['loss'](y, result)
+            loss_value = self.loss_fn(y, result)
         grads = tape.gradient(loss_value, self.model.trainable_weights)
         self.optimizer.apply_gradients(zip(grads,
                                            self.model.trainable_weights))
@@ -74,6 +74,7 @@ class Trainer():
                          [(key, metric.result())
                           for key, metric in self.train_metrics.items()])
 
+                logs = dict(self.train_metrics, **self.val_metrics)
             if val_dataset != None and self.val_metrics != None:
                 assert len(
                     self.val_metrics
