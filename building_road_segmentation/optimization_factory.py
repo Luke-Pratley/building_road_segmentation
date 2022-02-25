@@ -32,7 +32,7 @@ class Trainer():
         for key, metric in self.train_metrics.items():
             if key != 'loss':
                 metric.update_state(y, result)
-        self.train_metrics['loss'] = float(loss_value)
+        return loss_value
 
     @tf.function
     def test_step(self, x, y):
@@ -65,7 +65,9 @@ class Trainer():
                 callbacks.on_batch_begin(step, logs=logs)
                 callbacks.on_train_batch_begin(step, logs=logs)
 
-                self.train_step(x_batch_train, y_batch_train)
+                loss_val = self.train_step(x_batch_train, y_batch_train)
+
+                self.train_metrics['loss'] = float(loss_val)
 
                 callbacks.on_train_batch_end(step, logs=logs)
                 callbacks.on_batch_end(step, logs=logs)
