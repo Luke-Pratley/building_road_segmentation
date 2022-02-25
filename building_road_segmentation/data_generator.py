@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from enum import Enum
 import tensorflow as tf
 import math
 import tensorflow.keras.utils
 import numpy as np
 import PIL
+import tensorflow.image
 
 
 class read_data(tf.keras.utils.Sequence):
@@ -26,6 +28,54 @@ class read_data(tf.keras.utils.Sequence):
             dtype=np.float32), np.array([
                 np.load(file_name).astype(np.float32) for file_name in batch_y
             ])
+
+
+class read_and_augment_data(tf.keras.utils.Sequence):
+
+    class Augment(Enum):
+        ORIGINAL = 1
+        LRFLIP = 2
+        UDFLIP = 3
+        ROT90 = 4
+        ROT270 = 5
+
+    def __init__(self, x_set, y_set, batch_size):
+        self.batch_size = batch_size
+        x_set = []
+        y_set = []
+        for aug in Augment:
+            self.x += [(k, aug) for k in x_set]
+            self.y += [(k, aug) for k in y_set]
+
+    def __len__(self):
+        return math.ceil(len(self.x) / self.batch_size)
+
+    def __getitem__(self, idx):
+        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
+
+        X, y = np.array([
+            apply_augment(np.array(PIL.Image.open(im[0])) / 255., im[1])
+            for im in batch_x
+        ],
+                        dtype=np.float32), np.array([
+                            apply_augment(
+                                ynp.load(file_name[0]).astype(np.float32),
+                                file_name[1]) for file_name in batch_y
+                        ])
+
+    def apply_augment(image, aug):
+        assert isinstance(aug, Augment), "Augmentation is not recognized"
+        if aug is Augment.ORIGINAL:
+            return image
+        if aug is Augment.LRFLIP:
+            return tf.image.flip_left_right(image)
+        if aug is Augment.UDFLIP:
+            return tf.image.flip_up_down(image)
+        if aug is Augment.ROT90:
+            return tf.image.rot90(image)
+        if aug is Augment.ROT270:
+            return tf.image.rot90(image, k=3)
 
 
 class test_data(tf.keras.utils.Sequence):
