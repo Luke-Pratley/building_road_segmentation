@@ -65,7 +65,6 @@ class read_and_augment_data(tf.keras.utils.Sequence):
                         ])
 
     def apply_augment(image, aug):
-        assert isinstance(aug, Augment), "Augmentation is not recognized"
         if aug is Augment.ORIGINAL:
             return image
         if aug is Augment.LRFLIP:
