@@ -66,7 +66,7 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
-        X, y = np.array([
+        return np.array([
             self.apply_augment(np.array(PIL.Image.open(im[0])) / 255., im[1])
             for im in batch_x
         ],
