@@ -107,7 +107,7 @@ def test_trainer():
     train_acc_metric = tf.keras.metrics.BinaryAccuracy()
     val_acc_metric = tf.keras.metrics.BinaryAccuracy()
 
-    data_gen = data_generator.test_data(np.random.normal(0, 16, (128, 16)),
+    data_gen = data_generator.TEST_DATA(np.random.normal(0, 16, (128, 16)),
                                         np.random.uniform(0, 1, (128, 1)), 4)
 
     trainer = optimization_factory.Trainer(model, loss_fn, optimizer,
