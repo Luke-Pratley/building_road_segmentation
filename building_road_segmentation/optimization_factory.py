@@ -71,7 +71,8 @@ class Trainer():
                 callbacks.on_batch_end(step, logs=logs)
 
                 pb_i.add(x_batch_train.shape[0],
-                         [(key, metric.result())
+                         [(key, metric.result()) if key != 'loss' else
+                          (key, metric)
                           for key, metric in self.train_metrics.items()])
 
                 logs = dict(self.train_metrics, **self.val_metrics)
