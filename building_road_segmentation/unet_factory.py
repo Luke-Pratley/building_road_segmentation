@@ -70,9 +70,9 @@ class UpLayer(tf.keras.Model):
                                    activation,
                                    kernel_initializer=kernel_initializer)
 
-    def call(self, input_tensor1, input_tensor2, training=False):
-        x = self.upsample(input_tensor1)
-        y = input_tensor2
+    def call(self, input_tensor, training=False):
+        x = self.upsample(input_tensor[0])
+        y = input_tensor[1]
         x = self.concat([x, y])
         x = self.dropout(x, training)
         x = self.convblock(x, training)
@@ -137,7 +137,7 @@ class BasicUnet(tf.keras.Model):
             down_outputs.append(x)
         down_outputs = down_outputs[::-1]
 
-        x = self.up_blocks[0](down_outputs[0], down_outputs[1], training)
+        x = self.up_blocks[0]([down_outputs[0], down_outputs[1]], training)
         for k in range(1, self.unet_levels):
-            x = self.up_blocks[k](x, down_outputs[k + 1], training)
+            x = self.up_blocks[k]([x, down_outputs[k + 1]], training)
         return self.output_layer(x)
