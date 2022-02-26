@@ -14,6 +14,16 @@ class Trainer():
                  optimizer,
                  train_metrics,
                  val_metrics=dict()):
+        """
+        In the case that we need to do a custom training loop we can use this object to do the trianing, e.g., have fine control over the optimization process.
+
+        Inputs:
+            model: the model to be trained
+            loss_fn: the loss function object
+            optimzer: the optimization object
+            train_metrics: a dictionary of metrics to use while training
+            val_metrics: a dictionary of metrics to use while doing validation
+        """
         self.model = model
         self.optimizer = optimizer
         assert 'loss' not in train_metrics, "train metrics dictionary must not contain a 'loss' item, it must be passed through loss_fn argument"
@@ -22,8 +32,20 @@ class Trainer():
         self.val_metrics = val_metrics
         self.loss_fn = loss_fn
 
+    # this is the decorator converts the function into a tensorflow "Function" where the function is run in a TensorFlow graph, e.g., it allows us to compute gradients and execute eagerly
     @tf.function
     def train_step(self, x, y):
+        """
+        The training step that updates the weights through backpropigation and minimizes the loss.
+
+        Inputs:
+            x: training features
+            y: training labels
+
+        Outputs:
+            loss_value: a tensorflow object that holds the loss value
+
+        """
         with tf.GradientTape() as tape:
             result = self.model(x, training=True)
             loss_value = self.loss_fn(y, result)
@@ -98,8 +120,8 @@ class Trainer():
                 logs[key] = metric.result()
                 metric.reset_states()
             for key, metric in self.train_metrics.items():
-                    logs[key] = metric.result()
-                    metric.reset_states()
+                logs[key] = metric.result()
+                metric.reset_states()
 
         callbacks.on_train_end(logs=logs)
         history_object = None
