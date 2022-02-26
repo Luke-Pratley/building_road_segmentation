@@ -5,7 +5,6 @@ import pytest
 import tensorflow as tf
 import tensorflow.keras
 
-
 import building_road_segmentation.unet_factory as unet_factory
 import building_road_segmentation.optimization_factory as optimization_factory
 import building_road_segmentation.data_generator as data_generator
@@ -14,9 +13,11 @@ import numpy as np
 
 def test_conv_block():
 
-    block = unet_factory.ConvBlock(number_of_start_kernels=8,
-                                   kernel_shape=(3, 3),
-                                   activation=tf.nn.relu)
+    block = unet_factory.ConvBlock(
+        number_of_start_kernels=8,
+        kernel_shape=(3, 3),
+        activation=tf.nn.relu,
+        kernel_initializer=tf.keras.initializers.he_normal())
     assert isinstance(block, tf.keras.Model)
     inp = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)), dtype=np.float32)
     out = block(inp)
@@ -34,11 +35,13 @@ def test_conv_block():
 
 def test_downlayer():
 
-    x = unet_factory.DownLayer(number_of_start_kernels=8,
-                               kernel_shape=(3, 3),
-                               activation=tf.nn.relu,
-                               pooling_amount=2,
-                               dropout_rate=0.5)
+    x = unet_factory.DownLayer(
+        number_of_start_kernels=8,
+        kernel_shape=(3, 3),
+        activation=tf.nn.relu,
+        pooling_amount=2,
+        dropout_rate=0.5,
+        kernel_initializer=tf.keras.initializers.he_normal())
     assert isinstance(x, tf.keras.Model)
     inp = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)), dtype=np.float32)
     out = x(inp)
@@ -52,16 +55,18 @@ def test_downlayer():
 
 def test_uplayer():
 
-    x = unet_factory.UpLayer(number_of_start_kernels=8,
-                             kernel_shape=(3, 3),
-                             activation=tf.nn.relu,
-                             pooling_amount=2,
-                             dropout_rate=0.5)
+    x = unet_factory.UpLayer(
+        number_of_start_kernels=8,
+        kernel_shape=(3, 3),
+        activation=tf.nn.relu,
+        pooling_amount=2,
+        dropout_rate=0.5,
+        kernel_initializer=tf.keras.initializers.he_normal())
     assert isinstance(x, tf.keras.Model)
     inp1 = tf.constant(np.random.normal(0, 1, (4, 8, 8, 3)), dtype=np.float32)
     inp2 = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)),
                        dtype=np.float32)
-    out = x(inp1, inp2)
+    out = x([inp1, inp2])
     assert (out.shape.as_list() == [4, 16, 16, 8])
     blocks = x.layers
     assert len(blocks) == 4
@@ -74,13 +79,15 @@ def test_uplayer():
 def test_basic_unet():
     unet_levels = 6
     number_of_categories = 1
-    x = unet_factory.BasicUnet(number_of_categories=number_of_categories,
-                               unet_levels=unet_levels,
-                               number_of_start_kernels=4,
-                               kernel_shape=(3, 3),
-                               activation='relu',
-                               pooling_amount=2,
-                               dropout_rate=0.5)
+    x = unet_factory.BasicUnet(
+        number_of_categories=number_of_categories,
+        unet_levels=unet_levels,
+        number_of_start_kernels=4,
+        kernel_shape=(3, 3),
+        activation='relu',
+        pooling_amount=2,
+        dropout_rate=0.5,
+        kernel_initializer=tf.keras.initializers.he_normal())
     inp = tf.constant(np.random.normal(0, 1, (4, 128, 128, 3)),
                       dtype=np.float32)
     output = x(inp)
@@ -96,6 +103,14 @@ def test_basic_unet():
     for b in range(unet_levels):
         assert isinstance(blocks[b + unet_levels], unet_factory.UpLayer)
 
+    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+    loss_fn = tf.keras.losses.BinaryCrossentropy()
+    x.compile(optimizer=optimizer, loss=loss_fn)
+    data_gen = data_generator.TEST_DATA(np.random.uniform(0, 1, (16, 128, 128, 3)),
+                                        np.random.uniform(0, 1, (16, 128, 128, 1)),
+                                        4)
+    x.fit(data_gen, epochs=2)
+
 
 def test_trainer():
 
@@ -110,8 +125,11 @@ def test_trainer():
     data_gen = data_generator.TEST_DATA(np.random.normal(0, 16, (128, 16)),
                                         np.random.uniform(0, 1, (128, 1)), 4)
 
-    trainer = optimization_factory.Trainer(model, loss_fn, optimizer,
-                                           train_acc_metric, val_acc_metric,
-                                           )
+    trainer = optimization_factory.Trainer(
+        model,
+        loss_fn,
+        optimizer,
+        {"acc": train_acc_metric},
+    )
 
     trainer.fit(data_gen, None, 2)
