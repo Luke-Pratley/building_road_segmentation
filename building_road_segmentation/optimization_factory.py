@@ -67,7 +67,7 @@ class Trainer():
 
                 loss_val = self.train_step(x_batch_train, y_batch_train)
 
-                self.train_metrics['loss'] = loss_val.numpy()
+                self.train_metrics['loss'] = float(loss_val)
 
                 callbacks.on_train_batch_end(step, logs=logs)
                 callbacks.on_batch_end(step, logs=logs)
