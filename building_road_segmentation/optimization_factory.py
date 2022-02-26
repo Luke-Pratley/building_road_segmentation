@@ -34,7 +34,7 @@ class Trainer():
             if key != 'loss':
                 metric.update_state(y, result)
             else:
-                metric(loss_value)
+                metric.update_state(loss_value)
         return loss_value
 
     @tf.function
