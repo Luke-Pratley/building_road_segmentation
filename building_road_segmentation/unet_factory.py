@@ -30,7 +30,7 @@ class ConvBlock(tf.keras.Model):
         x = self.bn1(x, training)
         x = self.activation1(x)
 
-        x = self.conv2(input_tensor)
+        x = self.conv2(x)
         x = self.bn2(x, training)
         x = self.activation2(x)
         return x
@@ -72,7 +72,8 @@ class UpLayer(tf.keras.Model):
 
     def call(self, input_tensor1, input_tensor2, training=False):
         x = self.upsample(input_tensor1)
-        x = self.concat([x, input_tensor2])
+        y = input_tensor2
+        x = self.concat([x, y])
         x = self.dropout(x, training)
         x = self.convblock(x, training)
         return x
