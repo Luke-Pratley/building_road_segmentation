@@ -18,6 +18,7 @@ class Trainer():
         self.optimizer = optimizer
         assert 'loss' not in train_metrics, "train metrics dictionary must not contain a 'loss' item, it must be passed through loss_fn argument"
         self.train_metrics = train_metrics
+        self.train_metrics['loss'] = tf.keras.metrics.Mean()
         self.val_metrics = val_metrics
         self.loss_fn = loss_fn
 
@@ -32,6 +33,8 @@ class Trainer():
         for key, metric in self.train_metrics.items():
             if key != 'loss':
                 metric.update_state(y, result)
+            else:
+                metric(loss_value)
         return loss_value
 
     @tf.function
@@ -67,14 +70,11 @@ class Trainer():
 
                 loss_val = self.train_step(x_batch_train, y_batch_train)
 
-                self.train_metrics['loss'] = float(loss_val)
-
                 callbacks.on_train_batch_end(step, logs=logs)
                 callbacks.on_batch_end(step, logs=logs)
 
                 pb_i.add(x_batch_train.shape[0],
-                         [(key, metric.result()) if key != 'loss' else
-                          (key, metric)
+                         [(key, metric.result())
                           for key, metric in self.train_metrics.items()])
 
             if val_dataset != None and self.val_metrics != None:
@@ -97,11 +97,8 @@ class Trainer():
                 logs[key] = metric.result()
                 metric.reset_states()
             for key, metric in self.train_metrics.items():
-                if key != 'loss':
                     logs[key] = metric.result()
                     metric.reset_states()
-                else:
-                    logs[key] = metric
             callbacks.on_epoch_end(epoch, logs=logs)
 
         callbacks.on_train_end(logs=logs)
