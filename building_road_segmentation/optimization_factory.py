@@ -12,33 +12,58 @@ class Trainer():
                  model,
                  loss_fn,
                  optimizer,
-                 train_acc_metric,
-                 val_acc_metric,
-                 train_metrics=[]):
-        self.model = model
-        self.loss_fn = loss_fn
-        self.optimizer = optimizer
-        self.train_acc_metric = train_acc_metric
-        self.val_acc_metric = val_acc_metric
-        self.train_metrics = train_metrics
+                 train_metrics,
+                 val_metrics=dict()):
+        """
+        In the case that we need to do a custom training loop we can use this object to do the trianing, e.g., have fine control over the optimization process.
 
+        Inputs:
+            model: the model to be trained
+            loss_fn: the loss function object
+            optimzer: the optimization object
+            train_metrics: a dictionary of metrics to use while training
+            val_metrics: a dictionary of metrics to use while doing validation
+        """
+        self.model = model
+        self.optimizer = optimizer
+        assert 'loss' not in train_metrics, "train metrics dictionary must not contain a 'loss' item, it must be passed through loss_fn argument"
+        self.train_metrics = train_metrics
+        self.train_metrics['loss'] = tf.keras.metrics.Mean()
+        self.val_metrics = val_metrics
+        self.loss_fn = loss_fn
+
+    # this is the decorator converts the function into a tensorflow "Function" where the function is run in a TensorFlow graph, e.g., it allows us to compute gradients and execute eagerly
     @tf.function
     def train_step(self, x, y):
+        """
+        The training step that updates the weights through backpropigation and minimizes the loss.
+
+        Inputs:
+            x: training features
+            y: training labels
+
+        Outputs:
+            loss_value: a tensorflow object that holds the loss value
+
+        """
         with tf.GradientTape() as tape:
             result = self.model(x, training=True)
             loss_value = self.loss_fn(y, result)
         grads = tape.gradient(loss_value, self.model.trainable_weights)
         self.optimizer.apply_gradients(zip(grads,
                                            self.model.trainable_weights))
-        self.train_acc_metric.update_state(y, result)
-        for t in self.train_metrics:
-            t[1].update_state(y, result)
+        for key, metric in self.train_metrics.items():
+            if key != 'loss':
+                metric.update_state(y, result)
+            else:
+                metric.update_state(loss_value)
         return loss_value
 
     @tf.function
     def test_step(self, x, y):
         val_result = self.model(x, training=False)
-        self.val_acc_metric.update_state(y, val_result)
+        for key, metric in self.val_metrics.items():
+            metric.update_state(y, val_result)
 
     def fit(self,
             train_dataset,
@@ -65,21 +90,19 @@ class Trainer():
                 callbacks.on_batch_begin(step, logs=logs)
                 callbacks.on_train_batch_begin(step, logs=logs)
 
-                loss_value = self.train_step(x_batch_train, y_batch_train)
+                loss_val = self.train_step(x_batch_train, y_batch_train)
 
                 callbacks.on_train_batch_end(step, logs=logs)
                 callbacks.on_batch_end(step, logs=logs)
-                train_acc = self.train_acc_metric.result()
 
-                loss_val = loss_value
-                acc_val = train_acc
                 pb_i.add(x_batch_train.shape[0],
-                         values=[('loss', loss_val), ('acc', acc_val)] +
-                         [(t[0], t[1].result()) for t in self.train_metrics])
+                         [(key, metric.result())
+                          for key, metric in self.train_metrics.items()])
 
-            # Reset training metrics at the end of each epoch
-            self.train_acc_metric.reset_states()
-            if val_dataset != None:
+            if val_dataset != None and self.val_metrics != None:
+                assert len(
+                    self.val_metrics
+                ) > 0, "You have passed an empty dictionary for validation metrics"
                 pb_i = Progbar(len(val_dataset.x),
                                interval=interval,
                                unit_name="step")
@@ -87,11 +110,18 @@ class Trainer():
                 for step, (x_batch_val, y_batch_val) in enumerate(val_dataset):
                     self.test_step(x_batch_val, y_batch_val)
                     pb_i.add(x_batch_val.shape[0],
-                             values=[('val_acc', self.val_acc_metric.result())
-                                     ])
-
-                self.val_acc_metric.reset_states()
+                             values=[
+                                 (key, metric.result())
+                                 for key, metric in self.val_metrics.items()
+                             ])
             callbacks.on_epoch_end(epoch, logs=logs)
+            # Reset training metrics at the end of each epoch
+            for key, metric in self.val_metrics.items():
+                logs[key] = metric.result()
+                metric.reset_states()
+            for key, metric in self.train_metrics.items():
+                logs[key] = metric.result()
+                metric.reset_states()
 
         callbacks.on_train_end(logs=logs)
         history_object = None
