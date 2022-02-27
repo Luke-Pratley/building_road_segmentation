@@ -193,22 +193,26 @@ class AttentionUNet(BasicUNet):
     def __init__(self,
                  number_of_categories,
                  unet_levels,
-                 attention_intermediate_dim,
                  number_of_start_kernels,
                  kernel_shape,
                  activation,
                  pooling_amount,
                  dropout_rate,
-                 kernel_initializer=tf.keras.initializers.he_normal()):
+                 kernel_initializer=tf.keras.initializers.he_normal(),
+                 attention_intermediate_dim=None):
         super(AttentionUNet,
               self).__init__(number_of_categories, unet_levels,
                              number_of_start_kernels, kernel_shape, activation,
                              pooling_amount, dropout_rate, kernel_initializer)
         self.attention_gates = []
+        if attention_intermediate_dim is None:
+            attention_intermediate_dim = [
+                number_of_start_kernels * (k + 1) for k in range(unet_levels)
+            ]
         for levels in range(unet_levels):
             self.attention_gates.append(
                 AttentionGate(
-                    attention_intermediate_dim,
+                    attention_intermediate_dim[levels],
                     pooling_amount,
                     kernel_initializer=tf.keras.initializers.Constant(
                         value=0)))
