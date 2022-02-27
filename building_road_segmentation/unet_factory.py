@@ -176,10 +176,8 @@ class AttentionGate(tf.keras.Model):
         self.multiply = tf.keras.layers.Multiply()
 
     def call(self, inputs):
-        x = inputs[0]
-        g = inputs[1]
-        x = self.W_input(x)
-        g = self.W_gating_signal(g)
+        x = self.W_input(inputs[0])
+        g = self.W_gating_signal(inputs[1])
         x = self.add([x, g])
         x = self.acitvation1(x)
         x = self.Ψ(x)
@@ -229,7 +227,7 @@ class AttentionUNet(BasicUNet):
 
         gated_output = self.attention_gates[0](
             [down_outputs[1], down_outputs[0]])
-        x = self.up_blocks[0]([down_outputs[0], gated_output, training])
+        x = self.up_blocks[0]([down_outputs[0], gated_output], training)
         for k in range(1, self.unet_levels):
             gating = self.attention_gates[k]([down_outputs[k + 1], x])
             x = self.up_blocks[k]([x, down_outputs[k + 1]], training)
