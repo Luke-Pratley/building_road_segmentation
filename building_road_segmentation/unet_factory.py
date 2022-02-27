@@ -229,6 +229,6 @@ class AttentionUNet(BasicUNet):
             [down_outputs[1], down_outputs[0]])
         x = self.up_blocks[0]([down_outputs[0], gated_output], training)
         for k in range(1, self.unet_levels):
-            gating = self.attention_gates[k]([down_outputs[k + 1], x])
-            x = self.up_blocks[k]([x, down_outputs[k + 1]], training)
+            gated_output = self.attention_gates[k]([down_outputs[k + 1], x])
+            x = self.up_blocks[k]([x, gated_output], training)
         return self.output_layer(x)
