@@ -51,7 +51,6 @@ def test_attention_unet():
     number_of_categories = 1
     x = unet_factory.AttentionUNet(
         number_of_categories=number_of_categories,
-        attention_intermediate_dim=4,
         unet_levels=unet_levels,
         number_of_start_kernels=4,
         kernel_shape=(3, 3),
@@ -66,13 +65,15 @@ def test_attention_unet():
     assert (output.shape.as_list() == [4, 128, 128, 1])
     blocks = x.layers
     print([type(b) for b in blocks])
-    assert len(blocks) == 2 * unet_levels + 2
-    assert isinstance(blocks[-1], tf.keras.layers.Conv2D)
-    assert isinstance(blocks[-2], tf.keras.layers.Conv2D)
+    assert len(blocks) == 3 * unet_levels + 2
     for b in range(unet_levels):
         assert isinstance(blocks[b], unet_factory.DownLayer)
     for b in range(unet_levels):
         assert isinstance(blocks[b + unet_levels], unet_factory.UpLayer)
+    assert isinstance(blocks[unet_levels * 2], tf.keras.layers.Conv2D)
+    assert isinstance(blocks[unet_levels * 2 + 1], tf.keras.layers.Conv2D)
+    for b in range(unet_levels):
+        assert isinstance(blocks[b + 2 * unet_levels + 2], unet_factory.AttentionGate)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
     loss_fn = tf.keras.losses.BinaryCrossentropy()
