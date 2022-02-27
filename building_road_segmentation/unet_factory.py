@@ -193,6 +193,7 @@ class AttentionUNet(BasicUNet):
     def __init__(self,
                  number_of_categories,
                  unet_levels,
+                 attention_intermediate_dim,
                  number_of_start_kernels,
                  kernel_shape,
                  activation,
@@ -201,13 +202,14 @@ class AttentionUNet(BasicUNet):
                  kernel_initializer=tf.keras.initializers.he_normal()):
         super(AttentionUNet,
               self).__init__(number_of_categories, unet_levels,
-                             number_of_start_kernels, kernel_shape, acitvation,
+                             number_of_start_kernels, kernel_shape, activation,
                              pooling_amount, dropout_rate, kernel_initializer)
         self.attention_gates = []
         for levels in range(unet_levels):
             self.attention_gates.append(
                 AttentionGate(
-                    attention_intermediate_dim, pooling_amount,
+                    attention_intermediate_dim,
+                    pooling_amount,
                     kernel_initializer=tf.keras.initializers.Constant(
                         value=0)))
 
@@ -221,7 +223,7 @@ class AttentionUNet(BasicUNet):
             down_outputs.append(x)
         down_outputs = down_outputs[::-1]
 
-        gated_output = self.attention_gates[k](
+        gated_output = self.attention_gates[0](
             [down_outputs[1], down_outputs[0]])
         x = self.up_blocks[0]([down_outputs[0], gated_output, training])
         for k in range(1, self.unet_levels):

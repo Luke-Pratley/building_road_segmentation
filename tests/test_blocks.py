@@ -37,7 +37,7 @@ def test_attention_gate():
         num_filters=8, pooling_amount=2, kernel_initializer=tf.keras.initializers.Constant(1))
     assert isinstance(block, tf.keras.Model)
     inp1 = tf.constant(np.random.normal(0, 1, (4, 16, 16, 8)), dtype=np.float32)
-    inp2 = tf.constant(np.random.normal(0, 1, (4, 8, 8, 8)), dtype=np.float32)
+    inp2 = tf.constant(np.random.normal(0, 1, (4, 8, 8, 16)), dtype=np.float32)
     out = block([inp1, inp2])
     assert (out.shape == (4, 16, 16, 8))
     assert (out.shape.as_list() == [4, 16, 16, 8])
