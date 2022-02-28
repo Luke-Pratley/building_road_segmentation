@@ -120,8 +120,8 @@ class Trainer():
                 logs[key] = metric.result()
                 metric.reset_states()
             for key, metric in self.train_metrics.items():
-                logs[key] = metric.result()
-                metric.reset_states()
+                    logs[key] = metric.result()
+                    metric.reset_states()
 
         callbacks.on_train_end(logs=logs)
         history_object = None
