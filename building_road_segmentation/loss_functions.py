@@ -21,7 +21,7 @@ def weighted_dice_loss(weights):
 
 def weighted_categorical_crossentropy(weights):
 
-    def cateogrical_cross_entropy(y_true, y_pred):
+    def categorical_crossentropy(y_true, y_pred):
         tfweights = tf.constant(weights, dtype=y_pred.dtype)
         if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
         y_true = tf.cast(y_true, y_pred.dtype)
