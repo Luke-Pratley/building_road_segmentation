@@ -16,7 +16,7 @@ def test_constant_weighted_categorical_cross_entropy():
     true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     true_input = true_input / np.sum(true_input, axis=-1)[:, :, :, np.newaxis]
     test_input = test_input / np.sum(test_input, axis=-1)[:, :, :, np.newaxis]
-    weights = np.ones_like(test_input)
+    weights = np.ones(shape=test_input.shape[-1])
     output = -np.sum(np.log(test_input) * true_input * weights, axis=(-1))
 
     loss_fn = loss_functions.weighted_categorical_crossentropy(weights)
@@ -33,7 +33,7 @@ def test_constant_weighted_dice_loss():
     true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     true_input = true_input / np.sum(true_input, axis=-1)[:, :, :, np.newaxis]
     test_input = test_input / np.sum(test_input, axis=-1)[:, :, :, np.newaxis]
-    weights = np.ones_like(test_input)
+    weights = np.ones(shape=test_input.shape[-1])
 
     output = 1 - 2 * (np.sum(
         test_input * true_input * weights, axis=(-1)) + 1e-13) / (np.sum(
