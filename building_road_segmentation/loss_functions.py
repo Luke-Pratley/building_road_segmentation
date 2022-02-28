@@ -28,4 +28,4 @@ def weighted_categorical_crossentropy(weights):
         return tf.keras.backend.categorical_crossentropy(
             y_true * tfweights, y_pred)
 
-    return cateogrical_cross_entropy
+    return categorical_crossentropy
