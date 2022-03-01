@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.append('../tpu/models/official/efficientnet/')
 import tensorflow as tf
-
+import efficientnet_builder
 
 class ConvBlock(tf.keras.Model):
 
@@ -25,12 +27,13 @@ class ConvBlock(tf.keras.Model):
             kernel_initializer=kernel_initializer)
         self.bn2 = tf.keras.layers.BatchNormalization()
         self.activation2 = tf.keras.layers.Activation(activation)
-        self.add = tf.keras.layers.Add()
-        self.conv3 = tf.keras.layers.Conv2D(
-            number_of_start_kernels,
-            1,
-            padding='same',
-            kernel_initializer=kernel_initializer)
+        if self.residual:
+            self.add = tf.keras.layers.Add()
+            self.conv3 = tf.keras.layers.Conv2D(
+                number_of_start_kernels,
+                1,
+                padding='same',
+                kernel_initializer=kernel_initializer)
 
     def call(self, input_tensor, training=False):
         x = self.conv1(input_tensor)
@@ -248,4 +251,66 @@ class AttentionUNet(BasicUNet):
         for k in range(1, self.unet_levels):
             gated_output = self.attention_gates[k]([down_outputs[k + 1], x])
             x = self.up_blocks[k]([x, gated_output], training)
+        return self.output_layer(x)
+
+
+class EfficientNetUNet(tf.keras.Model):
+
+    def __init__(self,
+                 efficientnet,
+                 number_of_categories,
+                 unet_levels,
+                 number_of_start_kernels,
+                 kernel_shape,
+                 activation,
+                 pooling_amount,
+                 dropout_rate,
+                 residual,
+                 kernel_initializer=tf.keras.initializers.he_normal()):
+        super(EfficientNetUNet, self).__init__(name='')
+        assert unet_levels > 0, "Unet levels is less than 1"
+        assert number_of_categories > 0, "number of classes/categories less than 1"
+        self.unet_levels = unet_levels
+        self.down_blocks = []
+        self.up_blocks = []
+
+        self.first_layer_conv = tf.keras.layers.Conv2D(
+            number_of_start_kernels,
+            kernel_shape,
+            activation=activation,
+            padding='same',
+            kernel_initializer=kernel_initializer)
+        blocks_args, global_params = efficientnet_builder.get_model_params(efficientnet, None)
+        self.efficient_model = efficientnet_builder.efficientnet_model.Model(blocks_args, global_params)
+            
+        for k in reversed(range(unet_levels)):
+            self.up_blocks.append(
+                UpLayer(number_of_start_kernels * (k + 1),
+                        kernel_shape,
+                        activation,
+                        pooling_amount,
+                        dropout_rate,
+                        residual,
+                        kernel_initializer=kernel_initializer))
+
+        self.output_layer = tf.keras.layers.Conv2D(
+            number_of_categories,
+            1,
+            activation='softmax' if number_of_categories > 1 else 'sigmoid',
+            padding='same',
+            kernel_initializer=kernel_initializer)
+
+    def call(self, input_tensor, training=False):
+        down_outputs = []
+        
+        x = self.first_layer_conv(input_tensor)
+        down_outputs.append(x)
+        model_output = self.efficient_model(x, training)
+        for k in range(1, self.unet_levels + 1):
+            down_outputs.append(self.efficient_model.endpoints[f'reduction_{k}'])
+        down_outputs = down_outputs[::-1]
+
+        x = self.up_blocks[0]([down_outputs[0], down_outputs[1]], training)
+        for k in range(1, self.unet_levels):
+            x = self.up_blocks[k]([x, down_outputs[k + 1]], training)
         return self.output_layer(x)
