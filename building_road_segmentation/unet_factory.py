@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+sys.path.append('../tpu/models/official/efficientnet/')
 import tensorflow as tf
 import efficientnet_builder
 

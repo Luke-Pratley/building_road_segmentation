@@ -34,7 +34,6 @@ jobs:
         $CONDA/bin/conda install -c conda-forge numpy
         $CONDA/bin/pip3 install --user --upgrade tensorflow 
         git clone https://github.com/tensorflow/tpu.git ../tpu
-        export PYTHONPATH="$PYTHONPATH:../tpu/models/official/efficientnet/"
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
