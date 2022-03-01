@@ -7,13 +7,13 @@ import tensorflow as tf
 class ConvBlock(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
-                 kernel_initializer):
+                 residual, kernel_initializer):
         super(ConvBlock, self).__init__(name='')
+        self.residual = residual
         self.conv1 = tf.keras.layers.Conv2D(
             number_of_start_kernels,
             kernel_shape,
             padding='same',
-            residual=True,
             kernel_initializer=kernel_initializer)
         self.bn1 = tf.keras.layers.BatchNormalization()
         self.activation1 = tf.keras.layers.Activation(activation)
@@ -26,6 +26,11 @@ class ConvBlock(tf.keras.Model):
         self.bn2 = tf.keras.layers.BatchNormalization()
         self.activation2 = tf.keras.layers.Activation(activation)
         self.add = tf.keras.layers.Add()
+        self.conv3 = tf.keras.layers.Conv2D(
+            number_of_start_kernels,
+            1,
+            padding='same',
+            kernel_initializer=kernel_initializer)
 
     def call(self, input_tensor, training=False):
         x = self.conv1(input_tensor)
@@ -36,7 +41,8 @@ class ConvBlock(tf.keras.Model):
         x = self.bn2(x, training)
         x = self.activation2(x)
         if self.residual:
-            x = self.add([input_tensor, x])
+            y = self.conv3(input_tensor)
+            x = self.add([y, x])
         return x
 
 
