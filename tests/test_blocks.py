@@ -23,13 +23,15 @@ def test_conv_block():
     assert (out.shape == (4, 16, 16, 8))
     assert (out.shape.as_list() == [4, 16, 16, 8])
     blocks = block.layers
-    assert len(blocks) == 6
+    assert len(blocks) == 8
     assert isinstance(blocks[0], tf.keras.layers.Conv2D)
     assert isinstance(blocks[1], tf.keras.layers.BatchNormalization)
     assert isinstance(blocks[2], tf.keras.layers.Activation)
     assert isinstance(blocks[3], tf.keras.layers.Conv2D)
     assert isinstance(blocks[4], tf.keras.layers.BatchNormalization)
     assert isinstance(blocks[5], tf.keras.layers.Activation)
+    assert isinstance(blocks[6], tf.keras.layers.Add)
+    assert isinstance(blocks[7], tf.keras.layers.Conv2D)
 
 
 def test_attention_gate():
@@ -65,6 +67,7 @@ def test_downlayer():
         activation=tf.nn.relu,
         pooling_amount=2,
         dropout_rate=0.5,
+        residual=True,
         kernel_initializer=tf.keras.initializers.he_normal())
     assert isinstance(x, tf.keras.Model)
     inp = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)), dtype=np.float32)
@@ -85,6 +88,7 @@ def test_uplayer():
         activation=tf.nn.relu,
         pooling_amount=2,
         dropout_rate=0.5,
+        residual=True,
         kernel_initializer=tf.keras.initializers.he_normal())
     assert isinstance(x, tf.keras.Model)
     inp1 = tf.constant(np.random.normal(0, 1, (4, 8, 8, 3)), dtype=np.float32)
