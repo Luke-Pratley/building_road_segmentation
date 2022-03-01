@@ -22,6 +22,7 @@ def test_basic_unet():
         activation='relu',
         pooling_amount=2,
         dropout_rate=0.5,
+        residual=True,
         kernel_initializer=tf.keras.initializers.he_normal())
     inp = tf.constant(np.random.normal(0, 1, (4, 128, 128, 3)),
                       dtype=np.float32)
@@ -46,6 +47,7 @@ def test_basic_unet():
         np.random.uniform(0, 1, (16, 128, 128, 1)), 4)
     x.fit(data_gen, epochs=2)
 
+
 def test_attention_unet():
     unet_levels = 6
     number_of_categories = 1
@@ -57,6 +59,7 @@ def test_attention_unet():
         activation='relu',
         pooling_amount=2,
         dropout_rate=0.5,
+        residual=True,
         kernel_initializer=tf.keras.initializers.he_normal())
     inp = tf.constant(np.random.normal(0, 1, (4, 128, 128, 3)),
                       dtype=np.float32)
@@ -73,7 +76,8 @@ def test_attention_unet():
     assert isinstance(blocks[unet_levels * 2], tf.keras.layers.Conv2D)
     assert isinstance(blocks[unet_levels * 2 + 1], tf.keras.layers.Conv2D)
     for b in range(unet_levels):
-        assert isinstance(blocks[b + 2 * unet_levels + 2], unet_factory.AttentionGate)
+        assert isinstance(blocks[b + 2 * unet_levels + 2],
+                          unet_factory.AttentionGate)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
     loss_fn = tf.keras.losses.BinaryCrossentropy()
