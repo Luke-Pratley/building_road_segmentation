@@ -7,8 +7,9 @@ import tensorflow as tf
 class ConvBlock(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
-                 kernel_initializer):
+                 residual, kernel_initializer):
         super(ConvBlock, self).__init__(name='')
+        self.residual = residual
         self.conv1 = tf.keras.layers.Conv2D(
             number_of_start_kernels,
             kernel_shape,
@@ -24,6 +25,12 @@ class ConvBlock(tf.keras.Model):
             kernel_initializer=kernel_initializer)
         self.bn2 = tf.keras.layers.BatchNormalization()
         self.activation2 = tf.keras.layers.Activation(activation)
+        self.add = tf.keras.layers.Add()
+        self.conv3 = tf.keras.layers.Conv2D(
+            number_of_start_kernels,
+            1,
+            padding='same',
+            kernel_initializer=kernel_initializer)
 
     def call(self, input_tensor, training=False):
         x = self.conv1(input_tensor)
@@ -33,13 +40,16 @@ class ConvBlock(tf.keras.Model):
         x = self.conv2(x)
         x = self.bn2(x, training)
         x = self.activation2(x)
+        if self.residual:
+            y = self.conv3(input_tensor)
+            x = self.add([y, x])
         return x
 
 
 class DownLayer(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
-                 pooling_amount, dropout_rate, kernel_initializer):
+                 pooling_amount, dropout_rate, residual, kernel_initializer):
         super(DownLayer, self).__init__(name='')
         self.pool = tf.keras.layers.MaxPooling2D(
             (pooling_amount, pooling_amount))
@@ -47,6 +57,7 @@ class DownLayer(tf.keras.Model):
         self.convblock = ConvBlock(number_of_start_kernels,
                                    kernel_shape,
                                    activation,
+                                   residual,
                                    kernel_initializer=kernel_initializer)
 
     def call(self, input_tensor, training=False):
@@ -58,7 +69,7 @@ class DownLayer(tf.keras.Model):
 class UpLayer(tf.keras.Model):
 
     def __init__(self, number_of_start_kernels, kernel_shape, activation,
-                 pooling_amount, dropout_rate, kernel_initializer):
+                 pooling_amount, dropout_rate, residual, kernel_initializer):
         super(UpLayer, self).__init__(name='')
         # TODO: create option to switch between upsampling and transpose convolution
         self.upsample = tf.keras.layers.UpSampling2D(size=(pooling_amount,
@@ -68,6 +79,7 @@ class UpLayer(tf.keras.Model):
         self.convblock = ConvBlock(number_of_start_kernels,
                                    kernel_shape,
                                    activation,
+                                   residual,
                                    kernel_initializer=kernel_initializer)
 
     def call(self, input_tensor, training=False):
@@ -89,6 +101,7 @@ class BasicUNet(tf.keras.Model):
                  activation,
                  pooling_amount,
                  dropout_rate,
+                 residual,
                  kernel_initializer=tf.keras.initializers.he_normal()):
         super(BasicUNet, self).__init__(name='')
         assert unet_levels > 0, "Unet levels is less than 1"
@@ -110,6 +123,7 @@ class BasicUNet(tf.keras.Model):
                           activation,
                           pooling_amount,
                           dropout_rate,
+                          residual,
                           kernel_initializer=kernel_initializer))
         for k in reversed(range(unet_levels)):
             self.up_blocks.append(
@@ -118,6 +132,7 @@ class BasicUNet(tf.keras.Model):
                         activation,
                         pooling_amount,
                         dropout_rate,
+                        residual,
                         kernel_initializer=kernel_initializer))
 
         self.output_layer = tf.keras.layers.Conv2D(
@@ -196,12 +211,14 @@ class AttentionUNet(BasicUNet):
                  activation,
                  pooling_amount,
                  dropout_rate,
+                 residual,
                  kernel_initializer=tf.keras.initializers.he_normal(),
                  attention_intermediate_dim=None):
         super(AttentionUNet,
               self).__init__(number_of_categories, unet_levels,
                              number_of_start_kernels, kernel_shape, activation,
-                             pooling_amount, dropout_rate, kernel_initializer)
+                             pooling_amount, dropout_rate, residual,
+                             kernel_initializer)
         self.attention_gates = []
         if attention_intermediate_dim is None:
             attention_intermediate_dim = [
