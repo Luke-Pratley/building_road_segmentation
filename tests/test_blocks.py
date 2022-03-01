@@ -15,6 +15,7 @@ def test_conv_block():
         number_of_start_kernels=8,
         kernel_shape=(3, 3),
         activation=tf.nn.relu,
+        residual=True,
         kernel_initializer=tf.keras.initializers.he_normal())
     assert isinstance(block, tf.keras.Model)
     inp = tf.constant(np.random.normal(0, 1, (4, 16, 16, 3)), dtype=np.float32)
@@ -34,9 +35,12 @@ def test_conv_block():
 def test_attention_gate():
 
     block = unet_factory.AttentionGate(
-        num_filters=8, pooling_amount=2, kernel_initializer=tf.keras.initializers.Constant(1))
+        num_filters=8,
+        pooling_amount=2,
+        kernel_initializer=tf.keras.initializers.Constant(1))
     assert isinstance(block, tf.keras.Model)
-    inp1 = tf.constant(np.random.normal(0, 1, (4, 16, 16, 8)), dtype=np.float32)
+    inp1 = tf.constant(np.random.normal(0, 1, (4, 16, 16, 8)),
+                       dtype=np.float32)
     inp2 = tf.constant(np.random.normal(0, 1, (4, 8, 8, 16)), dtype=np.float32)
     out = block([inp1, inp2])
     assert (out.shape == (4, 16, 16, 8))
@@ -94,5 +98,3 @@ def test_uplayer():
     assert isinstance(blocks[1], tf.keras.layers.Concatenate)
     assert isinstance(blocks[2], tf.keras.layers.Dropout)
     assert isinstance(blocks[3], unet_factory.ConvBlock)
-
-
