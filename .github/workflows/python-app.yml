@@ -28,7 +28,7 @@ jobs:
         sudo add-apt-repository ppa:ubuntugis/ppa
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
-        git clone git@github.com:tensorflow/tpu.git
+        git clone https://github.com/tensorflow/tpu.git
         export PYTHONPATH="$PYTHONPATH:../tpu/models/official/efficientnet/"
         $CONDA/bin/conda install --channel conda-forge --override-channels "gdal>2.2.4"
         $CONDA/bin/conda install -c conda-forge geopandas
