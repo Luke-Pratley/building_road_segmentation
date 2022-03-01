@@ -48,6 +48,44 @@ def test_basic_unet():
     x.fit(data_gen, epochs=2)
 
 
+def test_efficientnet_unet():
+    unet_levels = 4
+    number_of_categories = 1
+    model_name = 'efficientnet-b0'
+    x = unet_factory.EfficientNetUNet(
+        efficientnet=model_name,
+        number_of_categories=number_of_categories,
+        unet_levels=unet_levels,
+        number_of_start_kernels=4,
+        kernel_shape=(3, 3),
+        activation='relu',
+        pooling_amount=2,
+        dropout_rate=0.5,
+        residual=True,
+        kernel_initializer=tf.keras.initializers.he_normal())
+    inp = tf.constant(np.random.normal(0, 1, (4, 128, 128, 3)),
+                      dtype=np.float32)
+    output = x(inp)
+    print(x.summary())
+    assert (output.shape.as_list() == [4, 128, 128, 1])
+    blocks = x.layers
+    print([type(b) for b in blocks])
+    assert len(blocks) == 2 * unet_levels -1
+    assert isinstance(blocks[-1], tf.keras.layers.Conv2D)
+    assert isinstance(blocks[-2], tf.keras.Model)
+    assert isinstance(blocks[-3], tf.keras.layers.Conv2D)
+    for b in range(unet_levels):
+        assert isinstance(blocks[b], unet_factory.UpLayer)
+
+    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+    loss_fn = tf.keras.losses.BinaryCrossentropy()
+    x.compile(optimizer=optimizer, loss=loss_fn)
+    data_gen = data_generator.TEST_DATA(
+        np.random.uniform(0, 1, (16, 128, 128, 3)),
+        np.random.uniform(0, 1, (16, 128, 128, 1)), 4)
+    x.fit(data_gen, epochs=2)
+
+
 def test_attention_unet():
     unet_levels = 6
     number_of_categories = 1
