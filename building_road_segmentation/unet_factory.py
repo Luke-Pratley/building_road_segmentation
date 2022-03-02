@@ -257,6 +257,17 @@ class AttentionUNet(BasicUNet):
 def make_efficientnet_spine(
         levels,
         efnet_model=tensorflow.keras.applications.efficientnet.EfficientNetB4):
+    """
+    Takes an efficientnet model from keras and turns it into an encoder for UNet.
+
+    The end of each block is chosen by the final addtion/reduction layers in efficientnet.
+
+    Inputs:
+        levels: the number of unet levels to find the blocks to use as output for the encoder
+        efnet_model: the function from keras that pulls the efficientnet model
+    Returns:
+        encoder: a model that takes the imput image and outputs the encoded image at each level of the unet 
+    """
     assert levels < 6, "Too many levels for efficientnet"
     efnet = efnet_model(weights='imagenet',
                         include_top=False,
@@ -271,7 +282,7 @@ def make_efficientnet_spine(
                     efnet.get_layer(f'block{k}{chr(98 + j - 1)}_add'))
                 break
     return tf.keras.Model(inputs=[efnet.layers[0].input],
-                              outputs=[g.output for g in get_layers])
+                          outputs=[g.output for g in get_layers])
 
 
 class EfficientNetUNet(tf.keras.Model):
