@@ -274,12 +274,6 @@ class EfficientNetUNet(tf.keras.Model):
         self.down_blocks = []
         self.up_blocks = []
 
-        self.first_layer_conv = tf.keras.layers.Conv2D(
-            number_of_start_kernels,
-            kernel_shape,
-            activation=activation,
-            padding='same',
-            kernel_initializer=kernel_initializer)
         blocks_args, global_params = efficientnet_builder.get_model_params(efficientnet, None)
         self.efficient_model = efficientnet_builder.efficientnet_model.Model(blocks_args, global_params)
             
@@ -305,14 +299,13 @@ class EfficientNetUNet(tf.keras.Model):
     def call(self, input_tensor, training=False):
         down_outputs = []
         
-        x = self.first_layer_conv(input_tensor)
-        down_outputs.append(x)
-        model_output = self.efficient_model(x, training)
+        model_output = self.efficient_model(x * 255., training)
         for k in range(1, self.unet_levels + 1):
             down_outputs.append(self.efficient_model.endpoints[f'reduction_{k}'])
         down_outputs = down_outputs[::-1]
 
         x = self.up_blocks[0]([down_outputs[0], down_outputs[1]], training)
-        for k in range(1, self.unet_levels):
+        for k in range(1, self.unet_levels - 1):
             x = self.up_blocks[k]([x, down_outputs[k + 1]], training)
+        x = self.up_blocks[k]([x, input_tensor], training)
         return self.output_layer(x)

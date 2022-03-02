@@ -73,7 +73,6 @@ def test_efficientnet_unet():
     assert len(blocks) == 2 * unet_levels -1
     assert isinstance(blocks[-1], tf.keras.layers.Conv2D)
     assert isinstance(blocks[-2], tf.keras.Model)
-    assert isinstance(blocks[-3], tf.keras.layers.Conv2D)
     for b in range(unet_levels):
         assert isinstance(blocks[b], unet_factory.UpLayer)
 
