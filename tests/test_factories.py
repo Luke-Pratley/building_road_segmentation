@@ -4,6 +4,7 @@
 import pytest
 import tensorflow as tf
 import tensorflow.keras
+import tensorflow.keras.applications.efficientnet
 
 import building_road_segmentation.unet_factory as unet_factory
 import building_road_segmentation.optimization_factory as optimization_factory
@@ -49,9 +50,9 @@ def test_basic_unet():
 
 
 def test_efficientnet_unet():
-    unet_levels = 4
+    unet_levels = 5
     number_of_categories = 1
-    model_name = 'efficientnet-b0'
+    model_name = tensorflow.keras.applications.efficientnet.EfficientNetB4
     x = unet_factory.EfficientNetUNet(
         efficientnet=model_name,
         number_of_categories=number_of_categories,
@@ -70,11 +71,10 @@ def test_efficientnet_unet():
     assert (output.shape.as_list() == [4, 128, 128, 1])
     blocks = x.layers
     print([type(b) for b in blocks])
-    assert len(blocks) == 2 * unet_levels -1
+    assert len(blocks) == unet_levels + 1
     assert isinstance(blocks[-1], tf.keras.layers.Conv2D)
     assert isinstance(blocks[-2], tf.keras.Model)
-    assert isinstance(blocks[-3], tf.keras.layers.Conv2D)
-    for b in range(unet_levels):
+    for b in range(unet_levels - 1):
         assert isinstance(blocks[b], unet_factory.UpLayer)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
