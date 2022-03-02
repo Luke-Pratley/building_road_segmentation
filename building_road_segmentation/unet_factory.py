@@ -299,7 +299,7 @@ class EfficientNetUNet(tf.keras.Model):
             activation='softmax' if number_of_categories > 1 else 'sigmoid',
             padding='same',
             kernel_initializer=kernel_initializer)
-    def build(input_shape):
+    def build(self, input_shape):
         self.efficient_model.build(input_shape)
 
     def call(self, input_tensor, training=False):
