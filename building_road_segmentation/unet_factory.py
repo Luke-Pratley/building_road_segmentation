@@ -102,6 +102,7 @@ class BasicUNet(tf.keras.Model):
                  number_of_start_kernels,
                  kernel_shape,
                  activation,
+                 final_activation,
                  pooling_amount,
                  dropout_rate,
                  residual,
@@ -110,6 +111,8 @@ class BasicUNet(tf.keras.Model):
         assert unet_levels > 0, "Unet levels is less than 1"
         assert number_of_categories > 0, "number of classes/categories less than 1"
         self.unet_levels = unet_levels
+        self.number_of_start_kernels = number_of_start_kernels
+        self.pooling_amount = pooling_amount
         self.down_blocks = []
         self.up_blocks = []
         self.first_layer_conv = tf.keras.layers.Conv2D(
@@ -141,7 +144,7 @@ class BasicUNet(tf.keras.Model):
         self.output_layer = tf.keras.layers.Conv2D(
             number_of_categories,
             1,
-            activation='softmax' if number_of_categories > 1 else 'sigmoid',
+            activation=final_activation,
             padding='same',
             kernel_initializer=kernel_initializer)
 
@@ -206,32 +209,19 @@ class AttentionGate(tf.keras.Model):
 
 class AttentionUNet(BasicUNet):
 
-    def __init__(self,
-                 number_of_categories,
-                 unet_levels,
-                 number_of_start_kernels,
-                 kernel_shape,
-                 activation,
-                 pooling_amount,
-                 dropout_rate,
-                 residual,
-                 kernel_initializer=tf.keras.initializers.he_normal(),
-                 attention_intermediate_dim=None):
-        super(AttentionUNet,
-              self).__init__(number_of_categories, unet_levels,
-                             number_of_start_kernels, kernel_shape, activation,
-                             pooling_amount, dropout_rate, residual,
-                             kernel_initializer)
+    def __init__(self, attention_intermediate_dim=None, *args, **kwargs):
+        super(AttentionUNet, self).__init__(*args, **kwargs)
         self.attention_gates = []
         if attention_intermediate_dim is None:
             attention_intermediate_dim = [
-                number_of_start_kernels * (k + 1) for k in range(unet_levels)
+                self.number_of_start_kernels * (k + 1)
+                for k in range(self.unet_levels)
             ]
-        for levels in range(unet_levels):
+        for levels in range(self.unet_levels):
             self.attention_gates.append(
                 AttentionGate(
                     attention_intermediate_dim[levels],
-                    pooling_amount,
+                    self.pooling_amount,
                     kernel_initializer=tf.keras.initializers.Constant(
                         value=0)))
 
@@ -294,6 +284,7 @@ class EfficientNetUNet(tf.keras.Model):
                  number_of_start_kernels,
                  kernel_shape,
                  activation,
+                 final_activation,
                  pooling_amount,
                  dropout_rate,
                  residual,
@@ -321,7 +312,7 @@ class EfficientNetUNet(tf.keras.Model):
         self.output_layer = tf.keras.layers.Conv2D(
             number_of_categories,
             1,
-            activation='softmax' if number_of_categories > 1 else 'sigmoid',
+            activation=final_activation,
             padding='same',
             kernel_initializer=kernel_initializer)
 
