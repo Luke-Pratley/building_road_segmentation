@@ -49,7 +49,7 @@ def test_basic_unet():
 
 
 def test_efficientnet_unet():
-    unet_levels = 4
+    unet_levels = 6
     number_of_categories = 1
     model_name = 'efficientnet-b0'
     x = unet_factory.EfficientNetUNet(
@@ -70,10 +70,10 @@ def test_efficientnet_unet():
     assert (output.shape.as_list() == [4, 128, 128, 1])
     blocks = x.layers
     print([type(b) for b in blocks])
-    assert len(blocks) == 2 * unet_levels -1
+    assert len(blocks) == unet_levels + 1
     assert isinstance(blocks[-1], tf.keras.layers.Conv2D)
     assert isinstance(blocks[-2], tf.keras.Model)
-    for b in range(unet_levels):
+    for b in range(unet_levels - 1):
         assert isinstance(blocks[b], unet_factory.UpLayer)
 
     optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)

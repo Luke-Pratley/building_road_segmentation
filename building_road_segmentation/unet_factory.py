@@ -277,7 +277,7 @@ class EfficientNetUNet(tf.keras.Model):
         blocks_args, global_params = efficientnet_builder.get_model_params(efficientnet, None)
         self.efficient_model = efficientnet_builder.efficientnet_model.Model(blocks_args, global_params)
             
-        for k in reversed(range(unet_levels)):
+        for k in reversed(range(unet_levels - 1)):
             self.up_blocks.append(
                 UpLayer(number_of_start_kernels * (k + 1),
                         kernel_shape,
@@ -300,12 +300,12 @@ class EfficientNetUNet(tf.keras.Model):
         down_outputs = []
         
         model_output = self.efficient_model(input_tensor * 255., training)
-        for k in range(1, self.unet_levels + 1):
+        down_outputs.append(input_tensor)
+        for k in range(1, self.unet_levels):
             down_outputs.append(self.efficient_model.endpoints[f'reduction_{k}'])
         down_outputs = down_outputs[::-1]
 
         x = self.up_blocks[0]([down_outputs[0], down_outputs[1]], training)
         for k in range(1, self.unet_levels - 1):
             x = self.up_blocks[k]([x, down_outputs[k + 1]], training)
-        x = self.up_blocks[k]([x, input_tensor * 255], training)
         return self.output_layer(x)
