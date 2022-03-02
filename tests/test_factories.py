@@ -4,6 +4,7 @@
 import pytest
 import tensorflow as tf
 import tensorflow.keras
+import tensorflow.keras.applications.efficientnet
 
 import building_road_segmentation.unet_factory as unet_factory
 import building_road_segmentation.optimization_factory as optimization_factory
@@ -49,9 +50,9 @@ def test_basic_unet():
 
 
 def test_efficientnet_unet():
-    unet_levels = 6
+    unet_levels = 5
     number_of_categories = 1
-    model_name = 'efficientnet-b0'
+    model_name = tensorflow.keras.applications.efficientnet.EfficientNetB4
     x = unet_factory.EfficientNetUNet(
         efficientnet=model_name,
         number_of_categories=number_of_categories,

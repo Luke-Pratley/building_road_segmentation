@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import sys
-sys.path.append('../tpu/models/official/efficientnet/')
 import tensorflow as tf
-import efficientnet_builder
+import tensorflow.keras.applications.efficientnet
+
 
 class ConvBlock(tf.keras.Model):
 
@@ -254,6 +254,26 @@ class AttentionUNet(BasicUNet):
         return self.output_layer(x)
 
 
+def make_efficientnet_spine(
+        levels,
+        efnet_model=tensorflow.keras.applications.efficientnet.EfficientNetB4):
+    assert levels < 6, "Too many levels for efficientnet"
+    efnet = efnet_model(weights='imagenet',
+                        include_top=False,
+                        input_shape=(None, None, 3))
+    get_layers = []
+    for k in range(1, levels):
+        for j in range(0, 20):
+            try:
+                efnet.get_layer(f'block{k}{chr(98 + j)}_add')
+            except:
+                get_layers.append(
+                    efnet.get_layer(f'block{k}{chr(98 + j - 1)}_add'))
+                break
+    return tf.keras.Model(inputs=[efnet.layers[0].input],
+                              outputs=[g.output for g in get_layers])
+
+
 class EfficientNetUNet(tf.keras.Model):
 
     def __init__(self,
@@ -274,9 +294,9 @@ class EfficientNetUNet(tf.keras.Model):
         self.down_blocks = []
         self.up_blocks = []
 
-        blocks_args, global_params = efficientnet_builder.get_model_params(efficientnet, None)
-        self.efficient_model = efficientnet_builder.efficientnet_model.Model(blocks_args, global_params)
-            
+        self.efficientnet_spine = make_efficientnet_spine(
+            unet_levels, efficientnet)
+
         for k in reversed(range(unet_levels - 1)):
             self.up_blocks.append(
                 UpLayer(number_of_start_kernels * (k + 1),
@@ -293,18 +313,14 @@ class EfficientNetUNet(tf.keras.Model):
             activation='softmax' if number_of_categories > 1 else 'sigmoid',
             padding='same',
             kernel_initializer=kernel_initializer)
-    def build(self, input_shape):
-        self.efficient_model.build(input_shape)
 
     def call(self, input_tensor, training=False):
         down_outputs = []
-        
-        model_output = self.efficient_model(input_tensor * 255., training)
-        down_outputs.append(input_tensor)
-        for k in range(1, self.unet_levels):
-            down_outputs.append(self.efficient_model.endpoints[f'reduction_{k}'])
-        down_outputs = down_outputs[::-1]
 
+        outputs = self.efficientnet_spine(input_tensor * 255., training)
+        down_outputs = [l for l in outputs]
+        down_outputs.insert(0, input_tensor)
+        down_outputs = down_outputs[::-1]
         x = self.up_blocks[0]([down_outputs[0], down_outputs[1]], training)
         for k in range(1, self.unet_levels - 1):
             x = self.up_blocks[k]([x, down_outputs[k + 1]], training)
