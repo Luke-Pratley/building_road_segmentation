@@ -61,7 +61,7 @@ def weighted_binary_crossentropy(weights, not_weights):
         y_true = tf.cast(y_true, y_pred.dtype)
         not_y_true = 1 - y_true
         not_y_pred = 1 - y_pred
-        return -tf.reduce_sum((y_true * tfweights) * tf.math.log(
+        return -tf.reduce_mean((y_true * tfweights) * tf.math.log(
             y_pred) + (not_y_true * tfnot_weights) * tf.math.log(not_y_pred), axis=(-1))
 
     return binary_crossentropy

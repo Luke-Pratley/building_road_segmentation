@@ -93,7 +93,7 @@ def test_random_weighted_binary_cross_entropy():
     test_input = test_input / np.sum(test_input, axis=-1)[:, :, :, np.newaxis]
     weights = np.random.uniform(0, 1, size=test_input.shape)
     notweights = np.random.uniform(0, 1, size=test_input.shape)
-    output = -np.sum(
+    output = -np.mean(
         np.log(test_input) * true_input * weights + 
             np.log(1 - test_input) * (1 - true_input) * notweights, axis=(-1))
 
