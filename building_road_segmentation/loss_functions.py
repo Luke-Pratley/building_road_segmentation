@@ -14,34 +14,11 @@ def weighted_dice_loss(weights):
         y_true = tf.cast(y_true, y_pred.dtype)
         return 1 - 2 * (tf.reduce_sum(
             tf.math.multiply(tf.math.multiply(tfweights, y_true), y_pred),
-            axis=-1) + 1e-13) / (tf.reduce_sum(
-                tf.multiply(y_true + y_pred, tfweights), axis=-1) + 1e-13)
+            axis=(-3, -2, -1)) + 1e-13) / (tf.reduce_sum(
+                tf.multiply(y_true + y_pred, tfweights), axis=(-3, -2, -1)) + 1e-13)
 
     return dice_loss
 
-
-def weighted_binary_dice_loss(weights):
-
-    assert np.all(weights <= 1)
-    assert np.all(weights >= 0)
-    def dice_loss(y_true, y_pred):
-        tfweights = tf.constant(weights, dtype=y_pred.dtype)
-        tfnot_weights = 1 - tfweights
-        if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
-        y_true = tf.cast(y_true, y_pred.dtype)
-        not_y_true = 1 - y_true
-        not_y_pred = 1 - y_pred
-        return 1 - 2 * (
-            tf.reduce_sum(
-                tf.math.multiply(tf.math.multiply(tfweights, y_true), y_pred),
-                axis=-1) + tf.reduce_sum(tf.math.multiply(
-                    tf.math.multiply(tfnot_weights, not_y_true), not_y_pred),
-                                         axis=-1) + 1e-6
-        ) / (tf.reduce_sum(tf.multiply(y_true + y_pred, tfweights), axis=-1) +
-             tf.reduce_sum(tf.multiply(not_y_true + not_y_pred, tfnot_weights),
-                           axis=-1) + 1e-6)
-
-    return dice_loss
 
 
 def weighted_categorical_crossentropy(weights):
