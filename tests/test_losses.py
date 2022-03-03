@@ -94,8 +94,8 @@ def test_random_weighted_binary_cross_entropy():
     weights = np.random.uniform(0, 1, size=test_input.shape)
     notweights = np.random.uniform(0, 1, size=test_input.shape)
     output = -np.mean(
-        np.log(test_input) * true_input * weights + 
-            np.log(1 - test_input) * (1 - true_input) * notweights, axis=(-1))
+        np.log(test_input + 1e-13) * true_input * weights + 
+            np.log(1 - test_input + 1e-13) * (1 - true_input) * notweights, axis=(-1))
 
     loss_fn = loss_functions.weighted_binary_crossentropy(weights, notweights)
 
