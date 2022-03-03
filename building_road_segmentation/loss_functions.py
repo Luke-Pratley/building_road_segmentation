@@ -50,3 +50,18 @@ def weighted_categorical_crossentropy(weights):
             y_true * tfweights, y_pred)
 
     return categorical_crossentropy
+
+
+def weighted_binary_crossentropy(weights, not_weights):
+
+    def binary_crossentropy(y_true, y_pred):
+        tfweights = tf.constant(weights, dtype=y_pred.dtype)
+        tfnot_weights = tf.constant(not_weights, dtype=y_pred.dtype)
+        if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
+        y_true = tf.cast(y_true, y_pred.dtype)
+        not_y_true = 1 - y_true
+        not_y_pred = 1 - y_pred
+        return -tf.reduce_sum((y_true * tfweights) * tf.math.log(
+            y_pred) + (not_y_true * tfnot_weights) * tf.math.log(not_y_pred), axis=(-1))
+
+    return binary_crossentropy
