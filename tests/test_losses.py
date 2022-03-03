@@ -89,15 +89,13 @@ def test_random_weighted_binary_cross_entropy():
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
-    true_input = true_input / np.sum(true_input, axis=-1)[:, :, :, np.newaxis]
-    test_input = test_input / np.sum(test_input, axis=-1)[:, :, :, np.newaxis]
-    weights = np.random.uniform(0, 1, size=test_input.shape)
-    notweights = np.random.uniform(0, 1, size=test_input.shape)
+    weights = np.random.uniform(0, 1, size=test_input.shape)/2
+    notweights = 1 - weights
     output = -np.mean(
         np.log(test_input + 1e-13) * true_input * weights + 
             np.log(1 - test_input + 1e-13) * (1 - true_input) * notweights, axis=(-1))
 
-    loss_fn = loss_functions.weighted_binary_crossentropy(weights, notweights)
+    loss_fn = loss_functions.weighted_binary_crossentropy(weights)
 
     test_output = loss_fn(true_input, test_input).numpy()
     assert test_output.shape == output.shape
@@ -109,20 +107,18 @@ def test_random_weighted_binary_dice_loss():
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
-    true_input = true_input / np.sum(true_input, axis=-1)[:, :, :, np.newaxis]
-    test_input = test_input / np.sum(test_input, axis=-1)[:, :, :, np.newaxis]
 
-    weights = np.random.uniform(0, 1, size=test_input.shape)
-    notweights = np.random.uniform(0, 1, size=test_input.shape)
+    weights = np.random.uniform(0, 1, size=test_input.shape)/2
+    notweights = 1 - weights
 
     output = 1 - 2 * (np.sum(test_input * true_input * weights +
                              (1 - test_input) * (1 - true_input) * notweights,
-                             axis=(-1)) + 1e-13) / (np.sum(
+                             axis=(-1)) + 1e-6) / (np.sum(
                                  (test_input + true_input) * weights +
                                  (2 - test_input - true_input) * notweights,
-                                 axis=(-1)) + 1e-13)
+                                 axis=(-1)) + 1e-6)
 
-    loss_fn = loss_functions.weighted_binary_dice_loss(weights, notweights)
+    loss_fn = loss_functions.weighted_binary_dice_loss(weights)
 
     test_output = loss_fn(true_input, test_input).numpy()
     assert test_output.shape == output.shape
