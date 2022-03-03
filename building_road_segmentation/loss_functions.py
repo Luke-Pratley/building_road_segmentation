@@ -22,8 +22,8 @@ def weighted_dice_loss(weights):
 
 def weighted_binary_dice_loss(weights):
 
-    assert np.all(weights < 1)
-    assert np.all(weights > 0)
+    assert np.all(weights <= 1)
+    assert np.all(weights >= 0)
     def dice_loss(y_true, y_pred):
         tfweights = tf.constant(weights, dtype=y_pred.dtype)
         tfnot_weights = 1 - tfweights
@@ -57,8 +57,8 @@ def weighted_categorical_crossentropy(weights):
 
 
 def weighted_binary_crossentropy(weights):
-    assert np.all(weights < 1)
-    assert np.all(weights > 0)
+    assert np.all(weights <= 1)
+    assert np.all(weights >= 0)
     def binary_crossentropy(y_true, y_pred):
         tfweights = tf.constant(weights, dtype=y_pred.dtype)
         tfnot_weights = 1 - tfweights
