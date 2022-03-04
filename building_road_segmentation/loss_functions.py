@@ -52,6 +52,6 @@ def weighted_binary_crossentropy(weights):
 
 
 def intersection_over_union(y_true, y_pred):
-    intersection = np.sum(y_true * y_pred)
-    union = np.sum((y_true == 1) | (y_pred == 1))
+    intersection = float(np.sum(y_true * y_pred))
+    union = float(np.sum((y_true == 1) | (y_pred == 1)))
     return intersection / union
