@@ -1,8 +1,8 @@
-# Building and Road Segmentation of Geospatial Images 
+# Building and Road Network Segmentation of Geospatial Images 
 
 [![Python application](https://github.com/Luke-Pratley/building_road_segmentation/actions/workflows/python-app.yml/badge.svg)](https://github.com/Luke-Pratley/building_road_segmentation/actions/workflows/python-app.yml)
 
-In this repository I investigate ways to semantically segment buildings and roads in top down. The motivation is that humanitarian and natural disasters can impact roads and buildings, and having a tool that can quickly survey them is useful.
+In this repository, I investigate ways to semantically segment buildings and roads in top down. The motivation is that humanitarian and natural disasters can impact roads and buildings, and having a tool that can quickly survey them is useful. I make use of tensorflow to create a UNet and perform the prediction.
 
 ## The Data
 
