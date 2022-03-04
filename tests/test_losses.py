@@ -35,9 +35,10 @@ def test_constant_weighted_dice_loss():
     test_input = test_input / np.sum(test_input, axis=-1)[:, :, :, np.newaxis]
     weights = np.ones(shape=test_input.shape[-1])
 
-    output = 1 - 2 * (np.sum(
-        test_input * true_input * weights, axis=(-1)) + 1e-13) / (np.sum(
-            (test_input + true_input) * weights, axis=(-1)) + 1e-13)
+    output = 1 - 2 * (
+        np.sum(test_input * true_input * weights, axis=(-3, -2, -1)) +
+        1e-13) / (np.sum(
+            (test_input + true_input) * weights, axis=(-3, -2, -1)) + 1e-13)
 
     loss_fn = loss_functions.weighted_dice_loss(weights)
 
@@ -62,6 +63,7 @@ def test_random_weighted_categorical_cross_entropy():
     assert test_output.shape == output.shape
     assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
 
+
 def test_random_weighted_dice_loss():
     np.random.seed(0)
     class_num = 5
@@ -72,11 +74,31 @@ def test_random_weighted_dice_loss():
 
     weights = np.random.uniform(0, 1, size=test_input.shape)
 
-    output = 1 - 2 * (np.sum(
-        test_input * true_input * weights, axis=(-1)) + 1e-13) / (np.sum(
-            (test_input + true_input) * weights, axis=(-1)) + 1e-13)
+    output = 1 - 2 * (
+        np.sum(test_input * true_input * weights, axis=(-3, -2, -1)) +
+        1e-13) / (np.sum(
+            (test_input + true_input) * weights, axis=(-3, -2, -1)) + 1e-13)
 
     loss_fn = loss_functions.weighted_dice_loss(weights)
+
+    test_output = loss_fn(true_input, test_input).numpy()
+    assert test_output.shape == output.shape
+    assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
+
+
+def test_random_weighted_binary_cross_entropy():
+    np.random.seed(0)
+    class_num = 5
+    test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
+    true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
+    weights = np.random.uniform(0, 1, size=test_input.shape) / 2
+    notweights = 1 - weights
+    output = -np.mean(np.log(test_input + 1e-13) * true_input * weights +
+                      np.log(1 - test_input + 1e-13) *
+                      (1 - true_input) * notweights,
+                      axis=(-1))
+
+    loss_fn = loss_functions.weighted_binary_crossentropy(weights)
 
     test_output = loss_fn(true_input, test_input).numpy()
     assert test_output.shape == output.shape
