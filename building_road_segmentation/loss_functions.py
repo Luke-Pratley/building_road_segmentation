@@ -6,19 +6,21 @@ import tensorflow.keras
 import numpy as np
 
 
-def weighted_dice_loss(weights):
+def weighted_dice_loss(weights, mask_value=-1):
 
     def dice_loss(y_true, y_pred):
         tfweights = tf.constant(weights, dtype=y_pred.dtype)
         if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
         y_true = tf.cast(y_true, y_pred.dtype)
+        mask = tf.cast(
+            tf.keras.backend.not_equal(tf.reduce_mean(y_true, axis=(-3, -2)),
+                                       mask_value), y_pred.dtype)
         return 1 - 2 * (tf.reduce_sum(
-            tf.math.multiply(tf.math.multiply(tfweights, y_true), y_pred),
-            axis=(-3, -2, -1)) + 1e-13) / (tf.reduce_sum(
-                tf.multiply(y_true + y_pred, tfweights), axis=(-3, -2, -1)) + 1e-13)
+            tfweights * y_true * y_pred * mask[:, tf.newaxis, tf.newaxis, :], axis=(-3, -2, -1)
+        ) + 1e-13) / (tf.reduce_sum(
+            (y_true + y_pred) * tfweights * mask[:, tf.newaxis, tf.newaxis, :], axis=(-3, -2, -1)) + 1e-13)
 
     return dice_loss
-
 
 
 def weighted_categorical_crossentropy(weights):
@@ -36,6 +38,7 @@ def weighted_categorical_crossentropy(weights):
 def weighted_binary_crossentropy(weights):
     assert np.all(weights <= 1)
     assert np.all(weights >= 0)
+
     def binary_crossentropy(y_true, y_pred):
         tfweights = tf.constant(weights, dtype=y_pred.dtype)
         tfnot_weights = 1 - tfweights

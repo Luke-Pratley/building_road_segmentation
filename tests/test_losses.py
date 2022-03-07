@@ -85,6 +85,25 @@ def test_random_weighted_dice_loss():
     assert test_output.shape == output.shape
     assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
 
+def test_random_weighted_masked_dice_loss():
+    np.random.seed(0)
+    class_num = 5
+    test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
+    true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
+    true_input[:, :, :, 0] = -1
+    weights = np.random.uniform(0, 1, size=test_input.shape)
+
+    output = 1 - 2 * (
+    np.sum(test_input[:, :, :, 1:] * true_input[:, :, :, 1:] * weights[:, :, :, 1:], axis=(-3, -2, -1)) +
+        1e-13) / (np.sum(
+            (test_input[:, :, :, 1:] + true_input[:, :, :, 1:]) * weights[:, :, :, 1:], axis=(-3, -2, -1)) + 1e-13)
+
+    loss_fn = loss_functions.weighted_dice_loss(weights)
+
+    test_output = loss_fn(true_input, test_input).numpy()
+    assert test_output.shape == output.shape
+    assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
+
 
 def test_random_weighted_binary_cross_entropy():
     np.random.seed(0)
