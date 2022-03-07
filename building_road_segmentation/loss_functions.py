@@ -16,9 +16,11 @@ def weighted_dice_loss(weights, mask_value=-1):
             tf.keras.backend.not_equal(tf.reduce_mean(y_true, axis=(-3, -2)),
                                        mask_value), y_pred.dtype)
         return 1 - 2 * (tf.reduce_sum(
-            tfweights * y_true * y_pred * mask[:, tf.newaxis, tf.newaxis, :], axis=(-3, -2, -1)
-        ) + 1e-13) / (tf.reduce_sum(
-            (y_true + y_pred) * tfweights * mask[:, tf.newaxis, tf.newaxis, :], axis=(-3, -2, -1)) + 1e-13)
+            tfweights * y_true * y_pred * mask[:, tf.newaxis, tf.newaxis, :],
+            axis=(-3, -2, -1)) + 1e-13) / (tf.reduce_sum(
+                (y_true + y_pred) * tfweights *
+                mask[:, tf.newaxis, tf.newaxis, :],
+                axis=(-3, -2, -1)) + 1e-13)
 
     return dice_loss
 
@@ -35,7 +37,7 @@ def weighted_categorical_crossentropy(weights):
     return categorical_crossentropy
 
 
-def weighted_binary_crossentropy(weights):
+def weighted_binary_crossentropy(weights, mask_value=-1):
     assert np.all(weights <= 1)
     assert np.all(weights >= 0)
 
@@ -46,15 +48,22 @@ def weighted_binary_crossentropy(weights):
         y_true = tf.cast(y_true, y_pred.dtype)
         not_y_true = 1 - y_true
         not_y_pred = 1 - y_pred
-        return -tf.reduce_mean(
-            (y_true * tfweights) * tf.math.log(y_pred) +
-            (not_y_true * tfnot_weights) * tf.math.log(not_y_pred),
-            axis=(-1))
+        mask = tf.cast(
+            tf.keras.backend.not_equal(tf.reduce_mean(y_true, axis=(-3, -2)),
+                                       mask_value), y_pred.dtype)
+        return -tf.reduce_sum(
+            ((y_true * tfweights) * tf.math.log(y_pred) +
+             (not_y_true * tfnot_weights) * tf.math.log(not_y_pred)) *
+            mask[:, tf.newaxis, tf.newaxis, :],
+            axis=(-1)) / tf.reduce_sum(mask, axis=-1)
 
     return binary_crossentropy
 
 
-def intersection_over_union(y_true, y_pred):
+def intersection_over_union(y_true, y_pred, masked_value=-1):
+    mask = (y_true != masked_value)
+    y_pred = y_pred[mask]
+    y_true = y_true[mask]
     intersection = float(np.sum(y_true * y_pred))
     union = float(np.sum((y_true == 1) | (y_pred == 1)))
     return intersection / union

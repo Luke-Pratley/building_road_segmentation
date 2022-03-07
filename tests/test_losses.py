@@ -122,3 +122,22 @@ def test_random_weighted_binary_cross_entropy():
     test_output = loss_fn(true_input, test_input).numpy()
     assert test_output.shape == output.shape
     assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
+
+def test_random_weighted_binary_cross_entropy():
+    np.random.seed(0)
+    class_num = 5
+    test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
+    true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
+    weights = np.random.uniform(0, 1, size=test_input.shape) / 2
+    true_input[:, :, :, 0] = -1
+    notweights = 1 - weights
+    output = -np.mean(np.log(test_input[:, :, :, 1:] + 1e-13) * true_input[:, :, :, 1:] * weights[:, :, :, 1:] +
+                      np.log(1 - test_input[:, :, :, 1:] + 1e-13) *
+                      (1 - true_input[:, :, :, 1:]) * notweights[:, :, :, 1:],
+                      axis=(-1))
+
+    loss_fn = loss_functions.weighted_binary_crossentropy(weights)
+
+    test_output = loss_fn(true_input, test_input).numpy()
+    assert test_output.shape == output.shape
+    assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
