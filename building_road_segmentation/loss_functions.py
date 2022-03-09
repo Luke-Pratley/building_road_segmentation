@@ -81,6 +81,8 @@ def masked_accuracy(mask_value=-1):
         y_pred = tf.math.round(y_pred)
         y_pred = tf.boolean_mask(y_pred, mask)
         y_true = tf.boolean_mask(y_true, mask)
-        return tf.reduce_mean(tf.keras.backend.equal(y_true, y_pred), axis=-1)
+        return tf.reduce_mean(tf.cast(tf.keras.backend.equal(y_true, y_pred),
+                                      dtype=y_true.dtype),
+                              axis=-1)
 
     return accuracy
