@@ -70,7 +70,7 @@ def intersection_over_union(y_true, y_pred, masked_value=-1):
         return intersection / union
     return np.nan
 
-def masked_accuracy(masked_value=-1):
+def masked_accuracy(mask_value=-1):
     def accuracy(y_true, y_pred):
         if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
         y_true = tf.cast(y_true, y_pred.dtype)
