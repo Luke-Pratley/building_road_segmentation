@@ -70,15 +70,17 @@ def intersection_over_union(y_true, y_pred, masked_value=-1):
         return intersection / union
     return np.nan
 
+
 def masked_accuracy(mask_value=-1):
+
     def accuracy(y_true, y_pred):
         if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
         y_true = tf.cast(y_true, y_pred.dtype)
-        mask = tf.cast(
-            tf.keras.backend.not_equal(tf.reduce_mean(y_true, axis=(-3, -2)),
-                                       mask_value), y_pred.dtype)
+        mask = tf.cast(tf.keras.backend.not_equal(y_true, mask_value),
+                       y_pred.dtype)
         y_pred = tf.math.round(y_pred)
         y_pred = tf.boolean_mask(y_pred, mask)
         y_true = tf.boolean_mask(y_true, mask)
         return tf.reduce_mean(tf.keras.backend.equal(y_true, y_pred), axis=-1)
+
     return accuracy
