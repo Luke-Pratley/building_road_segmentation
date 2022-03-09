@@ -64,6 +64,17 @@ def intersection_over_union(y_true, y_pred, masked_value=-1):
     mask = (y_true != masked_value)
     y_pred = y_pred[mask]
     y_true = y_true[mask]
-    intersection = float(np.sum(y_true * y_pred))
-    union = float(np.sum((y_true == 1) | (y_pred == 1)))
-    return intersection / union
+    if len(y_true) > 0:
+        intersection = float(np.sum(y_true * y_pred))
+        union = float(np.sum((y_true == 1) | (y_pred == 1)))
+        return intersection / union
+    return np.nan
+def masked_accuracy(masked_value=-1):
+    def accuracy(y_true, y_pred):
+        if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
+        y_true = tf.cast(y_true, y_pred.dtype)
+        mask = tf.cast(
+            tf.keras.backend.not_equal(tf.reduce_mean(y_true, axis=(-3, -2)),
+                                       mask_value), y_pred.dtype)
+        y_pred = tf.math.round(y_pred)
+        return tf.reduce_mean(tf.keras.backend.equal(y_true, y_pred), axis=-1)
