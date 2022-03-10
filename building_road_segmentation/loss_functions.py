@@ -86,3 +86,19 @@ def masked_accuracy(mask_value=-1):
                               axis=-1)
 
     return accuracy
+
+def masked_class_accuracy(mask_value=-1, class_num=0):
+
+    def accuracy(y_true, y_pred):
+        if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
+        y_true = tf.cast(y_true, y_pred.dtype)
+        mask = tf.cast(tf.keras.backend.not_equal(y_true, mask_value),
+                       y_pred.dtype)
+        y_pred = tf.math.round(y_pred)
+        y_pred = tf.boolean_mask(y_pred, mask)
+        y_true = tf.boolean_mask(y_true, mask)
+        return tf.cast(tf.keras.backend.equal(y_true, y_pred),
+                       dtype=y_true.dtype)[:, :, :, class_num]
+                              
+
+    return accuracy
