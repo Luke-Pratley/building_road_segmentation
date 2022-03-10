@@ -51,12 +51,10 @@ def weighted_binary_crossentropy(weights, mask_value=-1):
         mask = tf.cast(
             tf.keras.backend.not_equal(tf.reduce_mean(y_true, axis=(-3, -2)),
                                        mask_value), y_pred.dtype)
-        return -tf.reduce_sum(
-            ((y_true * tfweights) * tf.math.log(y_pred) +
-             (not_y_true * tfnot_weights) * tf.math.log(not_y_pred)) *
-            mask[:, tf.newaxis, tf.newaxis, :],
-            axis=(-1)) / tf.reduce_sum(mask, axis=-1)[:, tf.newaxis,
-                                                      tf.newaxis]
+        return tf.reduce_sum(tf.tf.keras.backend.binary_crossentropy(
+            y_true * tf.weights, y_pred) * mask[:, tf.newaxis, tf.newaxis, :],
+                             axis=-1) / tf.reduce_sum(
+                                 mask, axis=-1)[:, tf.newaxis, tf.newaxis]
 
     return binary_crossentropy
 
