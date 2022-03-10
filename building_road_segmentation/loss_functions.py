@@ -55,7 +55,8 @@ def weighted_binary_crossentropy(weights, mask_value=-1):
             ((y_true * tfweights) * tf.math.log(y_pred) +
              (not_y_true * tfnot_weights) * tf.math.log(not_y_pred)) *
             mask[:, tf.newaxis, tf.newaxis, :],
-            axis=(-1)) / tf.reduce_sum(mask, axis=-1)
+            axis=(-1)) / tf.reduce_sum(mask, axis=-1)[:, tf.newaxis,
+                                                      tf.newaxis]
 
     return binary_crossentropy
 
@@ -87,6 +88,7 @@ def masked_accuracy(mask_value=-1):
 
     return accuracy
 
+
 def masked_class_accuracy(mask_value=-1, class_num=0):
 
     def accuracy(y_true, y_pred):
@@ -99,6 +101,5 @@ def masked_class_accuracy(mask_value=-1, class_num=0):
         y_true = tf.boolean_mask(y_true, mask)
         return tf.cast(tf.keras.backend.equal(y_true, y_pred),
                        dtype=y_true.dtype)[:, :, :, class_num]
-                              
 
     return accuracy
