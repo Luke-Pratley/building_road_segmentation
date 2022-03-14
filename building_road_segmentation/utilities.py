@@ -27,7 +27,7 @@ def get_directories_dictionary(data_directory, dataset_index):
     """
     assert isinstance(dataset_index, int), "data index must be an integer"
     assert isinstance(data_directory, str), "data_directory must be a string"
-    datasets = glob.glob(data_directory + '*_Train')
+    datasets = glob.glob(data_directory + '*')
     assert len(
         data_directory) > 0, "There are no folders in the dataset directory."
     assert len(data_directory) > dataset_index, "data index is out of range."
