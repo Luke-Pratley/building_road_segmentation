@@ -23,7 +23,9 @@ Environment, Baheti et al. (2020)](https://ieeexplore.ieee.org/document/9150621)
 
 For a good list of requirements, you can check the testing build in `.github/workflows/python-app.yml`. 
 
-It should work with Python 3.8 or greater.
+It should work with Python 3.8 or greater. 
+
+Note: raterio and gdal can have issues on windows. The order of import in python of geopandas and rasterio can be important.
 
 For the EDA: 
 - geopandas 
