@@ -1,4 +1,4 @@
-# Building and Road Network Segmentation of Geospatial Images 
+# Building and Road Network Segmentation of Satellite Images 
 
 [![Python application](https://github.com/Luke-Pratley/building_road_segmentation/actions/workflows/python-app.yml/badge.svg)](https://github.com/Luke-Pratley/building_road_segmentation/actions/workflows/python-app.yml)
 
