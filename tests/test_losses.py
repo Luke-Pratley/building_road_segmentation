@@ -85,6 +85,7 @@ def test_random_weighted_dice_loss():
     assert test_output.shape == output.shape
     assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
 
+
 def test_random_weighted_masked_dice_loss():
     np.random.seed(0)
     class_num = 5
@@ -93,10 +94,13 @@ def test_random_weighted_masked_dice_loss():
     true_input[:, :, :, 0] = -1
     weights = np.random.uniform(0, 1, size=test_input.shape)
 
-    output = 1 - 2 * (
-    np.sum(test_input[:, :, :, 1:] * true_input[:, :, :, 1:] * weights[:, :, :, 1:], axis=(-3, -2, -1)) +
-        1e-13) / (np.sum(
-            (test_input[:, :, :, 1:] + true_input[:, :, :, 1:]) * weights[:, :, :, 1:], axis=(-3, -2, -1)) + 1e-13)
+    output = 1 - 2 * (np.sum(test_input[:, :, :, 1:] *
+                             true_input[:, :, :, 1:] * weights[:, :, :, 1:],
+                             axis=(-3, -2, -1)) +
+                      1e-13) / (np.sum(
+                          (test_input[:, :, :, 1:] + true_input[:, :, :, 1:]) *
+                          weights[:, :, :, 1:],
+                          axis=(-3, -2, -1)) + 1e-13)
 
     loss_fn = loss_functions.weighted_dice_loss(weights)
 
@@ -111,33 +115,37 @@ def test_random_weighted_binary_cross_entropy():
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     weights = np.random.uniform(0, 1, size=test_input.shape) / 2
-    notweights = 1 - weights
-    output = -np.mean(np.log(test_input + 1e-13) * true_input * weights +
-                      np.log(1 - test_input + 1e-13) *
-                      (1 - true_input) * notweights,
+    norm = weights * true_input + (1 - true_input * weights)
+    weights = weights / norm
+    output = -np.mean(np.log(test_input) * true_input * weights +
+                      np.log(1 - test_input) * (1 - true_input * weights),
                       axis=(-1))
 
     loss_fn = loss_functions.weighted_binary_crossentropy(weights)
 
     test_output = loss_fn(true_input, test_input).numpy()
     assert test_output.shape == output.shape
-    assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
+    #there is an unknown epsilon, so we don't expect them to be exactly close
+    assert np.allclose(output, test_output, rtol=1e-3, atol=1e-3)
 
-def test_random_weighted_binary_cross_entropy():
+
+def test_random_weighted_masked_binary_cross_entropy():
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     true_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
     weights = np.random.uniform(0, 1, size=test_input.shape) / 2
     true_input[:, :, :, 0] = -1
-    notweights = 1 - weights
-    output = -np.mean(np.log(test_input[:, :, :, 1:] + 1e-13) * true_input[:, :, :, 1:] * weights[:, :, :, 1:] +
-                      np.log(1 - test_input[:, :, :, 1:] + 1e-13) *
-                      (1 - true_input[:, :, :, 1:]) * notweights[:, :, :, 1:],
-                      axis=(-1))
+    norm = weights * true_input + (1 - true_input * weights)
+    weights = weights / norm
+    output = -np.mean(
+        np.log(test_input[:, :, :, 1:]) * true_input[:, :, :, 1:] *
+        weights[:, :, :, 1:] + np.log(1 - test_input[:, :, :, 1:]) *
+        (1 - true_input[:, :, :, 1:] * weights[:, :, :, 1:]),
+        axis=(-1))
 
     loss_fn = loss_functions.weighted_binary_crossentropy(weights)
 
     test_output = loss_fn(true_input, test_input).numpy()
     assert test_output.shape == output.shape
-    assert np.allclose(output, test_output, rtol=1e-6, atol=1e-6)
+    assert np.allclose(output, test_output, rtol=1e-3, atol=1e-3)

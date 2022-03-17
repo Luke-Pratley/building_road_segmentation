@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-import building_road_segmentation
+from building_road_segmentation import utilities
 
 
 def test_path_missing():
@@ -10,6 +10,5 @@ def test_path_missing():
         data_directory = ''
         dataset_index = 1
         #it will throw because there are no directories found
-        result = building_road_segmentation.get_directories_dictionary(
-            data_directory, dataset_index)
-
+        result = utilities.get_directories_dictionary(data_directory,
+                                                      dataset_index)
