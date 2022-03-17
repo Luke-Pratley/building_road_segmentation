@@ -69,6 +69,18 @@ def intersection_over_union(y_true, y_pred, masked_value=-1):
         return intersection / union
     return np.nan
 
+def iou_metric(y_true, y_pred):
+    if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
+    if not tf.is_tensor(y_true): y_pred = tf.constant(y_true)
+    y_pred = tf.cast(tf.keras.backend.greater(y_pred, 0.5), dtype=y_true.dtype)
+    intersection = tf.reduce_sum(y_true * y_pred, axis=(-3, -2))
+    union = tf.reduce_sum(tf.cast(tf.keras.backend.greater(y_pred + y_true, 0), dtype=y_true.dtype), axis=(-3, -2))
+    mask = tf.keras.backend.not_equal(union, 0)
+    union = tf.boolean_mask(union, mask)
+    intersection =  tf.boolean_mask(intersection, mask)
+    return intersection / union
+
+
 
 def masked_accuracy(mask_value=-1):
 
