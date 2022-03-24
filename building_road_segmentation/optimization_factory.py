@@ -15,7 +15,8 @@ class Trainer():
                  train_metrics,
                  val_metrics=dict()):
         """
-        In the case that we need to do a custom training loop we can use this object to do the trianing, e.g., have fine control over the optimization process.
+        In the case that we need to do a custom training loop we can use 
+        this object to do the trianing, e.g., have fine control over the optimization process.
 
         Input:
             model: the model to be trained
@@ -26,7 +27,8 @@ class Trainer():
         """
         self.model = model
         self.optimizer = optimizer
-        assert 'loss' not in train_metrics, "train metrics dictionary must not contain a 'loss' item, it must be passed through loss_fn argument"
+        assert 'loss' not in train_metrics, 
+        "train metrics dictionary must not contain a 'loss' item, it must be passed through loss_fn argument"
         self.train_metrics = train_metrics
         self.train_metrics['loss'] = tf.keras.metrics.Mean()
         self.val_metrics = val_metrics
@@ -36,7 +38,8 @@ class Trainer():
     @tf.function
     def train_step(self, x, y):
         """
-        The training step that updates the weights through backpropigation and minimizes the loss.
+        The training step that updates the weights 
+        through backpropigation and minimizes the loss.
 
         Input:
             x: training features
