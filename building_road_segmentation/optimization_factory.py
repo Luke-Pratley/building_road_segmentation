@@ -61,6 +61,14 @@ class Trainer():
 
     @tf.function
     def test_step(self, x, y):
+        """
+        The test step that updates the metrics using the validation data.
+
+        Inputs:
+            x: training features
+            y: training labels
+
+        """
         val_result = self.model(x, training=False)
         for key, metric in self.val_metrics.items():
             metric.update_state(y, val_result)
@@ -71,6 +79,17 @@ class Trainer():
             epochs,
             _callbacks=None,
             interval=0.5):
+        """
+        The fit function performs the training loop.
+
+        Inputs:
+            train_dataset: the dataset as a generator
+            val_dataset: the validation set as a generator
+            epochs: the total amount of epochs
+            _callbacks: the list of callbacks, e.g. ModelCheckpoint
+            interval: the interval (seconds) for updating the training 
+                      progress bar
+        """
         logs = {}
         callbacks = tf.keras.callbacks.CallbackList(_callbacks,
                                                     add_history=True,
