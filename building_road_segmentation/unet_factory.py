@@ -481,8 +481,7 @@ class EfficientNetUNet(tf.keras.Model):
         """
         super(EfficientNetUNet, self).__init__(name='')
         assert unet_levels > 0, "Unet levels is less than 1"
-        assert number_of_categories > 0,
-        "number of classes/categories less than 1"
+        assert number_of_categories > 0, "number of classes/categories less than 1"
         self.unet_levels = unet_levels
         self.down_blocks = []
         self.up_blocks = []

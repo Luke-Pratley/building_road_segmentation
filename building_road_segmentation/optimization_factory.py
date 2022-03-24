@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
-import time
 from tensorflow.keras.utils import Progbar
 
 
@@ -16,7 +15,8 @@ class Trainer():
                  val_metrics=dict()):
         """
         In the case that we need to do a custom training loop we can use 
-        this object to do the trianing, e.g., have fine control over the optimization process.
+        this object to do the trianing, e.g., have fine control over 
+        the optimization process.
 
         Input:
             model: the model to be trained
@@ -27,14 +27,17 @@ class Trainer():
         """
         self.model = model
         self.optimizer = optimizer
-        assert 'loss' not in train_metrics, 
-        "train metrics dictionary must not contain a 'loss' item, it must be passed through loss_fn argument"
+        assert ('loss' not in train_metrics), (
+            "train metrics dictionary must not contain a 'loss'" +
+            " item, it must be passed through loss_fn argument")
         self.train_metrics = train_metrics
         self.train_metrics['loss'] = tf.keras.metrics.Mean()
         self.val_metrics = val_metrics
         self.loss_fn = loss_fn
 
-    # this is the decorator converts the function into a tensorflow "Function" where the function is run in a TensorFlow graph, e.g., it allows us to compute gradients and execute eagerly
+    # this is the decorator converts the function into a tensorflow "Function"
+    # where the function is run in a TensorFlow graph,
+    # e.g., it allows us to compute gradients and execute eagerly
     @tf.function
     def train_step(self, x, y):
         """
@@ -123,10 +126,10 @@ class Trainer():
                          [(key, metric.result())
                           for key, metric in self.train_metrics.items()])
 
-            if val_dataset != None and self.val_metrics != None:
-                assert len(
-                    self.val_metrics
-                ) > 0, "You have passed an empty dictionary for validation metrics"
+            if val_dataset is not None and self.val_metrics is not None:
+                assert len(self.val_metrics) > 0, (
+                    "You have passed an empty dictionary for validation metrics"
+                )
                 pb_i = Progbar(len(val_dataset.x),
                                interval=interval,
                                unit_name="step")
@@ -144,8 +147,8 @@ class Trainer():
                 logs[key] = metric.result()
                 metric.reset_states()
             for key, metric in self.train_metrics.items():
-                    logs[key] = metric.result()
-                    metric.reset_states()
+                logs[key] = metric.result()
+                metric.reset_states()
 
         callbacks.on_train_end(logs=logs)
         history_object = None

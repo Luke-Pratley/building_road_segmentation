@@ -63,7 +63,8 @@ class READ_DATA(tf.keras.utils.Sequence):
             size: An integer that calculates the number of batches.
         """
         size = math.ceil(len(self.x) / self.batch_size)
-        assert size > 0, "The total number of batches needs to be greater than zero."
+        assert size > 0, (
+            "The total number of batches needs to be greater than zero.")
         return size
 
     def __getitem__(self, idx):
@@ -74,8 +75,10 @@ class READ_DATA(tf.keras.utils.Sequence):
             idx: The batch number as an integer.
 
         Output:
-            numpy_array_of_images: a numpy array of images of size (batch_size, imsize_y, imsize_x, 3), values between 0 and 1.
-            numpy_array_of_labels: a numpy array of images of size (batch_size, imsize_y, imsize_x, class_num), values are 0 or 1.
+            numpy_array_of_images: a numpy array of images of size 
+            (batch_size, imsize_y, imsize_x, 3), values between 0 and 1.
+            numpy_array_of_labels: a numpy array of images of size 
+            (batch_size, imsize_y, imsize_x, class_num), values are 0 or 1.
         """
         assert idx >= 0, "batch index must be greater than zero."
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
@@ -131,7 +134,8 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
             size: An integer that calculates the number of batches.
         """
         size = math.ceil(len(self.x) / self.batch_size)
-        assert size > 0, "The total number of batches needs to be greater than zero."
+        assert size > 0, (
+            "The total number of batches needs to be greater than zero.")
         return size
 
     def apply_augment(self, image, aug):
@@ -162,7 +166,8 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
 
     def __getitem__(self, idx):
         """ 
-        Output the batch of augmented features and labels given the batch number.
+        Output the batch of augmented features 
+        and labels given the batch number.
 
         Input:
             idx: The batch number as an integer.
@@ -180,11 +185,11 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
             self.apply_augment(np.array(PIL.Image.open(im[0])) / 255., im[1])
             for im in batch_x
         ],
-            dtype=np.float32), np.array([
-                self.apply_augment(
-                    np.load(file_name[0]).astype(np.float32),
-                    file_name[1]) for file_name in batch_y
-            ])
+                        dtype=np.float32), np.array([
+                            self.apply_augment(
+                                np.load(file_name[0]).astype(np.float32),
+                                file_name[1]) for file_name in batch_y
+                        ])
 
 
 class TEST_DATA(tf.keras.utils.Sequence):
@@ -216,8 +221,8 @@ class TEST_DATA(tf.keras.utils.Sequence):
             size: An integer that calculates the number of batches.
         """
         size = math.ceil(len(self.x) / self.batch_size)
-        assert size > 0,
-        "The total number of batches needs to be greater than zero."
+        assert size > 0, (
+            "The total number of batches needs to be greater than zero.")
         return size
 
     def __getitem__(self, idx):
