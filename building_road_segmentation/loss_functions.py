@@ -61,7 +61,8 @@ def weighted_categorical_crossentropy(weights=1):
 
     def categorical_crossentropy(y_true, y_pred):
         """
-        Calculates the categorical cross-entropy given predicted and true labels.
+        Calculates the categorical cross-entropy given 
+                                    predicted and true labels.
 
         Input:
             y_true: True labels that are not masked.
@@ -88,14 +89,16 @@ def weighted_binary_crossentropy(weights=1, mask_value=-1):
         mask_value: The label value that suggests a label should be masked.
 
     Output:
-        binary_crossentropy: the binary cross-entropy function to use during training.
+        binary_crossentropy: the binary cross-entropy 
+                                function to use during training.
     """
     assert np.all(np.array(weights) <= 1)
     assert np.all(np.array(weights) >= 0)
 
     def binary_crossentropy(y_true, y_pred):
         """
-        Calculates the binary cross-entropy loss given predicted and true labels.
+        Calculates the binary cross-entropy loss given 
+                        predicted and true labels.
 
         Input:
             y_true: True labels that might be masked.
@@ -105,7 +108,7 @@ def weighted_binary_crossentropy(weights=1, mask_value=-1):
                                         cross-entropy loss over an image.
         """
         tfweights = tf.constant(weights, dtype=y_pred.dtype)
-        if not tf.is_tensor(y_pred): 
+        if not tf.is_tensor(y_pred):
             y_pred = tf.constant(y_pred)
         y_true = tf.cast(y_true, y_pred.dtype)
         mask = tf.cast(
