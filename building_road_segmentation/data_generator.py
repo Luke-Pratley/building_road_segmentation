@@ -13,16 +13,21 @@ import tensorflow.image
 def basic_asserts(x_set, y_set, batch_size):
     """
     A function that asserts the inputs for the data generators.
+
+    Input:
+        x_set: List of image paths.
+        y_set: List of label paths.
+        batch_size: The size of each training batch.
     """
     assert batch_size > 0, "Batch size must be larger than zero."
     assert isinstance(
         x_set,
-        (list, np.array)), "list of paths must be a python list or np.array"
+        (list, np.array)), "list of paths must be a python list or np.array."
     assert isinstance(
         y_set,
-        (list, np.array)), "list of paths must be a python list or np.array"
+        (list, np.array)), "list of paths must be a python list or np.array."
     assert all(isinstance(k, str)
-               for k in x_set), "list of paths must be strings"
+               for k in x_set), "list of paths must be strings."
     assert all(isinstance(k, str)
                for k in y_set), "list of paths must be strings"
     assert len(x_set) == len(
@@ -40,10 +45,10 @@ class READ_DATA(tf.keras.utils.Sequence):
         """
         The constructor for the data generator.
 
-        Inputs:
-        x_set: a list of file paths to images saved as .png
-        y_set: a list of file paths to images saved as .npy
-        batch_size: an integer for the batch size to use during training.
+        Input:
+            x_set: a list of file paths to images saved as .png.
+            y_set: a list of file paths to images saved as .npy.
+            batch_size: an integer for the batch size to use during training.
         """
         # assert input values
         basic_asserts(x_set, y_set, batch_size)
@@ -53,8 +58,9 @@ class READ_DATA(tf.keras.utils.Sequence):
     def __len__(self):
         """
         Calculates the total number of batches.
-        Outputs:
-        size: An integer that calculates the number of batches.
+
+        Output:
+            size: An integer that calculates the number of batches.
         """
         size = math.ceil(len(self.x) / self.batch_size)
         assert size > 0, "The total number of batches needs to be greater than zero."
@@ -62,12 +68,14 @@ class READ_DATA(tf.keras.utils.Sequence):
 
     def __getitem__(self, idx):
         """ 
-        Outputs the batch of features and labels given the batch number.
-        Inputs:
-        idx: The batch number as an integer.
-        Outputs:
-        numpy_array_of_images: a numpy array of images of size (batch_size, imsize_y, imsize_x, 3), values between 0 and 1
-        numpy_array_of_labels: a numpy array of images of size (batch_size, imsize_y, imsize_x, class_num), values are 0 or 1
+        Output the batch of features and labels given the batch number.
+
+        Input:
+            idx: The batch number as an integer.
+
+        Output:
+            numpy_array_of_images: a numpy array of images of size (batch_size, imsize_y, imsize_x, 3), values between 0 and 1.
+            numpy_array_of_labels: a numpy array of images of size (batch_size, imsize_y, imsize_x, class_num), values are 0 or 1.
         """
         assert idx >= 0, "batch index must be greater than zero."
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
@@ -92,19 +100,19 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
         input and target images.
         """
         ORIGINAL = 1  # identity
-        LRFLIP = 2  #left right flip
-        UDFLIP = 3  #up down flip
-        ROT90 = 4  #rotate 90 degrees
+        LRFLIP = 2  # left right flip
+        UDFLIP = 3  # up down flip
+        ROT90 = 4  # rotate 90 degrees
         ROT270 = 5  # rotate -90 degrees
 
     def __init__(self, x_set, y_set, batch_size):
         """
         The constructor for the data generator with augmentations.
 
-        Inputs:
-        x_set: a list of file paths to images saved as .png
-        y_set: a list of file paths to images saved as .npy
-        batch_size: an integer for the batch size to use during training.
+        Input:
+            x_set: a list of file paths to images saved as .png.
+            y_set: a list of file paths to images saved as .npy.
+            batch_size: an integer for the batch size to use during training.
         """
         # assert input values
         basic_asserts(x_set, y_set, batch_size)
@@ -118,8 +126,9 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
     def __len__(self):
         """
         Calculates the total number of batches.
-        Outputs:
-        size: An integer that calculates the number of batches.
+
+        Output:
+            size: An integer that calculates the number of batches.
         """
         size = math.ceil(len(self.x) / self.batch_size)
         assert size > 0, "The total number of batches needs to be greater than zero."
@@ -128,9 +137,13 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
     def apply_augment(self, image, aug):
         """
         A function that returns a transformed image given an agumentation.
-        Inputs:
-        image: an input image
-        aug: an augmentation in the Augment enum class
+
+        Input:
+            image: an input image.
+            aug: an augmentation in the Augment enum class.
+
+        Output:
+            image: The transformed image.
         """
         assert isinstance(image, np.array), "image must be a numpy array"
         assert isinstance(image,
@@ -149,12 +162,16 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
 
     def __getitem__(self, idx):
         """ 
-        Outputs the batch of augmented features and labels given the batch number.
-        Inputs:
-        idx: The batch number as an integer.
-        Outputs:
-        numpy_array_of_images: a numpy array of augmented images of size (batch_size, imsize_y, imsize_x, 3), values between 0 and 1
-        numpy_array_of_labels: a numpy array of augmented images of size (batch_size, imsize_y, imsize_x, class_num), values are 0 or 1
+        Output the batch of augmented features and labels given the batch number.
+
+        Input:
+            idx: The batch number as an integer.
+
+        Output:
+            numpy_array_of_images: a numpy array of augmented images of size 
+            (batch_size, imsize_y, imsize_x, 3), values between 0 and 1.
+            numpy_array_of_labels: a numpy array of augmented images of size 
+            (batch_size, imsize_y, imsize_x, class_num), values are 0 or 1.
         """
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
@@ -163,11 +180,11 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
             self.apply_augment(np.array(PIL.Image.open(im[0])) / 255., im[1])
             for im in batch_x
         ],
-                        dtype=np.float32), np.array([
-                            self.apply_augment(
-                                np.load(file_name[0]).astype(np.float32),
-                                file_name[1]) for file_name in batch_y
-                        ])
+            dtype=np.float32), np.array([
+                self.apply_augment(
+                    np.load(file_name[0]).astype(np.float32),
+                    file_name[1]) for file_name in batch_y
+            ])
 
 
 class TEST_DATA(tf.keras.utils.Sequence):
@@ -179,10 +196,10 @@ class TEST_DATA(tf.keras.utils.Sequence):
         """
         The constructor for the data generator with lists of data.
 
-        Inputs:
-        x_set: a list of input objects.
-        y_set: a list of target objects.
-        batch_size: an integer for the batch size to use during training.
+        Input:
+            x_set: a list of input objects.
+            y_set: a list of target objects.
+            batch_size: an integer for the batch size to use during training.
         """
         assert batch_size > 0, "batch size must be greater than zero."
         assert len(x_set) == len(
@@ -194,21 +211,25 @@ class TEST_DATA(tf.keras.utils.Sequence):
     def __len__(self):
         """
         Calculates the total number of batches.
-        Outputs:
-        size: An integer that calculates the number of batches.
+
+        Output:
+            size: An integer that calculates the number of batches.
         """
         size = math.ceil(len(self.x) / self.batch_size)
-        assert size > 0, "The total number of batches needs to be greater than zero."
+        assert size > 0,
+        "The total number of batches needs to be greater than zero."
         return size
 
     def __getitem__(self, idx):
         """ 
-        Outputs the batch of features and labels given the batch number.
-        Inputs:
-        idx: The batch number as an integer.
-        Outputs:
-        inputs: a list of inputs for batch idx
-        labels: a list of labels for batch idx
+        Output the batch of features and labels given the batch number.
+
+        Input:
+            idx: The batch number as an integer.
+
+        Output:
+            features: a list of inputs for batch idx.
+            labels: a list of labels for batch idx.
         """
         batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]

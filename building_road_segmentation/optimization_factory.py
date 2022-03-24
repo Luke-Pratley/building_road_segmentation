@@ -17,7 +17,7 @@ class Trainer():
         """
         In the case that we need to do a custom training loop we can use this object to do the trianing, e.g., have fine control over the optimization process.
 
-        Inputs:
+        Input:
             model: the model to be trained
             loss_fn: the loss function object
             optimzer: the optimization object
@@ -38,12 +38,12 @@ class Trainer():
         """
         The training step that updates the weights through backpropigation and minimizes the loss.
 
-        Inputs:
+        Input:
             x: training features
             y: training labels
 
-        Outputs:
-            loss_value: a tensorflow object that holds the loss value
+        Output:
+            loss_value: a tensorflow object that holds the loss value.
 
         """
         with tf.GradientTape() as tape:
@@ -64,10 +64,12 @@ class Trainer():
         """
         The test step that updates the metrics using the validation data.
 
-        Inputs:
+        Input:
             x: training features
             y: training labels
-
+        
+        Output:
+            history: The object containing the history of the metrics.
         """
         val_result = self.model(x, training=False)
         for key, metric in self.val_metrics.items():
@@ -82,7 +84,7 @@ class Trainer():
         """
         The fit function performs the training loop.
 
-        Inputs:
+        Input:
             train_dataset: the dataset as a generator
             val_dataset: the validation set as a generator
             epochs: the total amount of epochs
