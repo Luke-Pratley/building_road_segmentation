@@ -123,6 +123,16 @@ def weighted_binary_crossentropy(weights=1, mask_value=-1):
 
 
 def intersection_over_union(y_true, y_pred, masked_value=-1):
+    """
+    Calculates the intersection over union (iou)
+
+    Input:
+        y_true: True labels that might be masked.
+        y_pred: Predicted labels.
+        masked_value: The value of a masked label.
+    Output:
+        iou: intersection over union calculation.
+    """
     mask = (y_true != masked_value)
     y_pred = y_pred[mask]
     y_true = y_true[mask]
@@ -134,6 +144,15 @@ def intersection_over_union(y_true, y_pred, masked_value=-1):
 
 
 def iou_metric(y_true, y_pred):
+    """
+    Calculates the intersection over union.
+
+    Input:
+        y_true: True labels.
+        y_pred: Predicted labels.
+    Output:
+        iou: iou metric for training.
+    """
     if not tf.is_tensor(y_pred):
         y_pred = tf.constant(y_pred)
     if not tf.is_tensor(y_true):
@@ -150,8 +169,20 @@ def iou_metric(y_true, y_pred):
 
 
 def masked_accuracy(mask_value=-1):
+    """
+    An accuracy metric that accounts for masked values.
+    This is useful during training.
+
+    Input:
+        mask_value: The value for a masked label.
+    Output:
+        A function that calculates the masked accuracy metric.
+    """
 
     def accuracy(y_true, y_pred):
+        """
+
+        """
         if not tf.is_tensor(y_pred):
             y_pred = tf.constant(y_pred)
         y_true = tf.cast(y_true, y_pred.dtype)
