@@ -10,7 +10,7 @@ The training and test data is taken from two SpaceNet competitions [2 and 3](htt
 
 ## The Models
 
-There are a number of models implimented for testing in this repository, all of which are variations of UNet:
+There are a number of models implemented for testing in this repository, all of which are variations of UNet:
 - Original UNet ([U-Net: Convolutional Networks for Biomedical Image Segmentation, Ronneberger et al. (2015)](https://arxiv.org/abs/1505.04597))
 - Residual UNet ([A deep Residual U-Net convolutional neural network for automated lung segmentation in computed tomography images, Khanna et al. (2021)](https://www.sciencedirect.com/science/article/abs/pii/S0208521620300887))
 - Attention UNet ([Attention U-Net: Learning Where to Look for the Pancreas, Oktay et al. (2018)](https://arxiv.org/abs/1804.03999))
