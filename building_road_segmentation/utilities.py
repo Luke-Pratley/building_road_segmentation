@@ -122,7 +122,7 @@ def get_geopandas_for_image(directories_dict, im):
     return gpd.read_file(path)
 
 
-def plot_image(directories_dict, image_name):
+def plot_image(directories_dict, image_name, figsize=(10, 10)):
     """
     Plots images and building locations for a given image name.
 
@@ -138,7 +138,7 @@ def plot_image(directories_dict, image_name):
                       dict), "Directories dict must be a dictionary"
     plt.rcParams.update({'font.size': 14})
     gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
-    fig, ax = plt.subplots(1, 1, sharey=True, sharex=True, figsize=(10, 10))
+    fig, ax = plt.subplots(1, 1, sharey=True, sharex=True, figsize=figsize)
     with rasterio.open(
             get_image_path(directories_dict, 'RGB-PanSharpen',
                            image_name)) as image:

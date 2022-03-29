@@ -142,35 +142,9 @@ def intersection_over_union(y_true, y_pred, masked_value=-1):
         return intersection / union
     return np.nan
 
-
-def iou_metric(y_true, y_pred):
+def masked_iou_metric(masked_value=-1):
     """
-    Calculates the intersection over union.
-
-    Input:
-        y_true: True labels.
-        y_pred: Predicted labels.
-    Output:
-        iou: iou metric for training.
-    """
-    if not tf.is_tensor(y_pred):
-        y_pred = tf.constant(y_pred)
-    if not tf.is_tensor(y_true):
-        y_pred = tf.constant(y_true)
-    y_pred = tf.cast(tf.keras.backend.greater(y_pred, 0.5), dtype=y_true.dtype)
-    intersection = tf.reduce_sum(y_true * y_pred, axis=(-3, -2))
-    union = tf.reduce_sum(tf.cast(tf.keras.backend.greater(y_pred + y_true, 0),
-                                  dtype=y_true.dtype),
-                          axis=(-3, -2))
-    mask = tf.keras.backend.not_equal(union, 0)
-    union = tf.boolean_mask(union, mask)
-    intersection = tf.boolean_mask(intersection, mask)
-    return intersection / union
-
-
-def masked_accuracy(mask_value=-1):
-    """
-    An accuracy metric that accounts for masked values.
+    Creates an iou metric that accounts for masked values.
     This is useful during training.
 
     Input:
@@ -178,10 +152,48 @@ def masked_accuracy(mask_value=-1):
     Output:
         A function that calculates the masked accuracy metric.
     """
+    
+    def iou_metric(y_true, y_pred):
+        """
+        Calculates the intersection over union.
 
+        Input:
+            y_true: True labels that can be censored or masked.
+            y_pred: Predicted labels.
+        Output:
+            iou: iou metric for training.
+        """
+        if not tf.is_tensor(y_pred): y_pred = tf.constant(y_pred)
+        if not tf.is_tensor(y_true): y_pred = tf.constant(y_true)
+        mask = tf.keras.backend.not_equal(tf.reduce_mean(y_true, axis=(-3, -2)), masked_value)
+        y_pred = tf.cast(tf.keras.backend.greater(y_pred, 0.5), dtype=y_true.dtype)
+        intersection = tf.reduce_sum(y_true * y_pred, axis=(-3, -2))
+        union = tf.reduce_sum(tf.cast(tf.keras.backend.greater(y_pred + y_true, 0), dtype=y_true.dtype), axis=(-3, -2))
+        mask = tf.math.logical_and(tf.keras.backend.not_equal(union, 0), mask)
+        union = tf.boolean_mask(union, mask)
+        intersection =  tf.boolean_mask(intersection, mask)
+        return intersection / union
+    return iou_metric
+
+def masked_accuracy(mask_value=-1):
+    """
+    Creates an accuracy metric that accounts for masked values.
+    This is useful during training.
+
+    Input:
+        mask_value: The value for a masked label.
+    Output:
+        A function that calculates the masked accuracy metric.
+    """
     def accuracy(y_true, y_pred):
         """
+        Calculates the intersection over union.
 
+        Input:
+            y_true: True labels that can be censored or masked.
+            y_pred: Predicted labels.
+        Output:
+            iou: iou metric for training.
         """
         if not tf.is_tensor(y_pred):
             y_pred = tf.constant(y_pred)
