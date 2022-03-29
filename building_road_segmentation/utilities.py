@@ -254,7 +254,6 @@ def load_building_mask(directories_dict, image_name):
     return mask
 
 
-
 def plot_features_labels(directories_dict, image_name):
     """
     Plots images and building locations for a given image name.
