@@ -216,7 +216,6 @@ def plot_images(directories_dict, image_name):
 
 
 def create_mask(directories_dict, image_name):
-    assert isinstance(image_name, str), "Image name must be a string"
     """
     Input
     directories_dict - a dictionary that contains the dictories of the images, masks, and geojson files.
@@ -224,6 +223,7 @@ def create_mask(directories_dict, image_name):
     
     Output - this is the boolean valued mask where the buildings are
     """
+    assert isinstance(image_name, str), "Image name must be a string"
     with rasterio.open(
             get_image_path(directories_dict, 'RGB-PanSharpen',
                            image_name)) as image:
@@ -237,6 +237,15 @@ def create_mask(directories_dict, image_name):
 
 
 def load_building_mask(directories_dict, image_name):
+    """
+    Loads a building mask.
+
+    Input
+    directories_dict - a dictionary that contains the dictories of the images, masks, and geojson files.
+    image_name - this is the image ID to create the mask for
+    
+    Output - this is the boolean valued mask where the buildings are
+    """
     assert isinstance(image_name, str), "Image name must be a string"
     assert isinstance(directories_dict,
                       dict), "Directories dict must be a dictionary"
@@ -244,14 +253,6 @@ def load_building_mask(directories_dict, image_name):
     assert mask.dtype == bool, "Mask is not a bool"
     return mask
 
-
-def load_road_mask(directories_dict, image_name):
-    assert isinstance(image_name, str), "Image name must be a string"
-    assert isinstance(directories_dict,
-                      dict), "Directories dict must be a dictionary"
-    mask = np.load(get_road_mask_path(directories_dict, image_name))
-    assert mask.dtype == bool, "Mask is not a bool"
-    return mask
 
 
 def plot_features_labels(directories_dict, image_name):
