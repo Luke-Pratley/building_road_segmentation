@@ -253,37 +253,3 @@ def load_building_mask(directories_dict, image_name):
     assert mask.dtype == bool, "Mask is not a bool"
     return mask
 
-
-def plot_features_labels(directories_dict, image_name):
-    """
-    Plots images and building locations for a given image name.
-
-    input:
-    directories_dict - a dictionary that contains the dictories of the images, masks, and geojson files.
-    image_name: The name of the image to plot.
-
-    output:
-    None
-    """
-    assert isinstance(image_name, str), "Image name must be a string"
-    assert isinstance(directories_dict,
-                      dict), "Directories dict must be a dictionary"
-    gpd_buildings_df = get_geopandas_for_image(directories_dict, image_name)
-    fig, ax = plt.subplots(1, 2, sharey=True, sharex=True, figsize=(10, 5))
-    with rasterio.open(
-            get_image_path(directories_dict, 'RGB-PanSharpen',
-                           image_name)) as image:
-        ax[0].imshow(np.moveaxis(image.read(), 0, -1).astype(np.uint16) / 1200,
-                     vmin=0,
-                     vmax=1)
-        ax[0].set_title('Input Feature Map')
-    building_mask = load_building_mask(directories_dict, image_name)
-    road_mask = load_road_mask(directories_dict, image_name)
-    ax[1].set_title('Output Label Map')
-    ax[1].imshow(np.ma.masked_where(road_mask == 1, road_mask), vmin=0, vmax=2)
-    ax[1].imshow(np.ma.masked_where(building_mask == 0, building_mask),
-                 vmin=0,
-                 vmax=1)
-
-    fig.tight_layout()
-    plt.show()
