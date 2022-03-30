@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
-import time
 from tensorflow.keras.utils import Progbar
 
 
@@ -15,9 +14,11 @@ class Trainer():
                  train_metrics,
                  val_metrics=dict()):
         """
-        In the case that we need to do a custom training loop we can use this object to do the trianing, e.g., have fine control over the optimization process.
+        In the case that we need to do a custom training loop we can use 
+        this object to do the trianing, e.g., have fine control over 
+        the optimization process.
 
-        Inputs:
+        Input:
             model: the model to be trained
             loss_fn: the loss function object
             optimzer: the optimization object
@@ -26,24 +27,29 @@ class Trainer():
         """
         self.model = model
         self.optimizer = optimizer
-        assert 'loss' not in train_metrics, "train metrics dictionary must not contain a 'loss' item, it must be passed through loss_fn argument"
+        assert ('loss' not in train_metrics), (
+            "train metrics dictionary must not contain a 'loss'" +
+            " item, it must be passed through loss_fn argument")
         self.train_metrics = train_metrics
         self.train_metrics['loss'] = tf.keras.metrics.Mean()
         self.val_metrics = val_metrics
         self.loss_fn = loss_fn
 
-    # this is the decorator converts the function into a tensorflow "Function" where the function is run in a TensorFlow graph, e.g., it allows us to compute gradients and execute eagerly
+    # this is the decorator converts the function into a tensorflow "Function"
+    # where the function is run in a TensorFlow graph,
+    # e.g., it allows us to compute gradients and execute eagerly
     @tf.function
     def train_step(self, x, y):
         """
-        The training step that updates the weights through backpropigation and minimizes the loss.
+        The training step that updates the weights 
+        through backpropigation and minimizes the loss.
 
-        Inputs:
+        Input:
             x: training features
             y: training labels
 
-        Outputs:
-            loss_value: a tensorflow object that holds the loss value
+        Output:
+            loss_value: a tensorflow object that holds the loss value.
 
         """
         with tf.GradientTape() as tape:
@@ -61,6 +67,16 @@ class Trainer():
 
     @tf.function
     def test_step(self, x, y):
+        """
+        The test step that updates the metrics using the validation data.
+
+        Input:
+            x: training features
+            y: training labels
+        
+        Output:
+            history: The object containing the history of the metrics.
+        """
         val_result = self.model(x, training=False)
         for key, metric in self.val_metrics.items():
             metric.update_state(y, val_result)
@@ -71,6 +87,17 @@ class Trainer():
             epochs,
             _callbacks=None,
             interval=0.5):
+        """
+        The fit function performs the training loop.
+
+        Input:
+            train_dataset: the dataset as a generator
+            val_dataset: the validation set as a generator
+            epochs: the total amount of epochs
+            _callbacks: the list of callbacks, e.g. ModelCheckpoint
+            interval: the interval (seconds) for updating the training 
+                      progress bar
+        """
         logs = {}
         callbacks = tf.keras.callbacks.CallbackList(_callbacks,
                                                     add_history=True,
@@ -99,10 +126,10 @@ class Trainer():
                          [(key, metric.result())
                           for key, metric in self.train_metrics.items()])
 
-            if val_dataset != None and self.val_metrics != None:
-                assert len(
-                    self.val_metrics
-                ) > 0, "You have passed an empty dictionary for validation metrics"
+            if val_dataset is not None and self.val_metrics is not None:
+                assert len(self.val_metrics) > 0, (
+                    "You have passed an empty dictionary for validation metrics"
+                )
                 pb_i = Progbar(len(val_dataset.x),
                                interval=interval,
                                unit_name="step")
@@ -120,8 +147,8 @@ class Trainer():
                 logs[key] = metric.result()
                 metric.reset_states()
             for key, metric in self.train_metrics.items():
-                    logs[key] = metric.result()
-                    metric.reset_states()
+                logs[key] = metric.result()
+                metric.reset_states()
 
         callbacks.on_train_end(logs=logs)
         history_object = None
