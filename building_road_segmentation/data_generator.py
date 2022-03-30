@@ -149,9 +149,6 @@ class READ_AND_AUGMENT_DATA(tf.keras.utils.Sequence):
         Output:
             image: The transformed image.
         """
-        assert isinstance(image, np.array), "image must be a numpy array"
-        assert isinstance(image,
-                          np.float32), "image must be a floating point type"
         if aug is self.Augment.ORIGINAL:
             return image
         if aug is self.Augment.LRFLIP:
