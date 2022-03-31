@@ -1,15 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pytest
 import tensorflow as tf
 import tensorflow.keras
 
 import building_road_segmentation.unet_factory as unet_factory
 import numpy as np
 
+# Tests that test aspects of the
+# custom layers and blocks within UNet during development.
+
 
 def test_conv_block():
+    """
+    Testing that a convolution block has the
+    correct layers and the correct output size.
+    """
 
     block = unet_factory.ConvBlock(
         number_of_start_kernels=8,
@@ -35,6 +41,10 @@ def test_conv_block():
 
 
 def test_attention_gate():
+    """
+    Testing that an attention gate has the
+    correct layers and the correct output size.
+    """
 
     block = unet_factory.AttentionGate(
         num_filters=8,
@@ -60,6 +70,10 @@ def test_attention_gate():
 
 
 def test_downlayer():
+    """
+    Testing that a down sampling layer has the
+    correct layers and the correct output size.
+    """
 
     x = unet_factory.DownLayer(
         number_of_start_kernels=8,
@@ -81,6 +95,10 @@ def test_downlayer():
 
 
 def test_uplayer():
+    """
+    Testing that an up sampling layer has the 
+    correct layers and the correct output size.
+    """
 
     x = unet_factory.UpLayer(
         number_of_start_kernels=8,

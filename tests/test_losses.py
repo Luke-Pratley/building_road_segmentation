@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pytest
-import tensorflow as tf
-import tensorflow.keras
 
 import numpy as np
 import building_road_segmentation.loss_functions as loss_functions
 
 
 def test_constant_weighted_categorical_cross_entropy():
+    """
+    Test the output for the categorical cross entropy.
+    """
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
@@ -27,6 +27,9 @@ def test_constant_weighted_categorical_cross_entropy():
 
 
 def test_constant_weighted_dice_loss():
+    """
+    Test the output for the weighted dice loss function.
+    """
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
@@ -48,6 +51,10 @@ def test_constant_weighted_dice_loss():
 
 
 def test_random_weighted_categorical_cross_entropy():
+    """
+    Test the output for the weighted cross entropy
+    with random weights applied.
+    """
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
@@ -65,6 +72,10 @@ def test_random_weighted_categorical_cross_entropy():
 
 
 def test_random_weighted_dice_loss():
+    """
+    Test the output for the weighted dice loss function
+    with random weights applied.
+    """
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
@@ -87,6 +98,10 @@ def test_random_weighted_dice_loss():
 
 
 def test_random_weighted_masked_dice_loss():
+    """
+    Test the output for the weighted dice loss function
+    with random weights applied and censoring of labels that are missing.
+    """
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
@@ -110,6 +125,10 @@ def test_random_weighted_masked_dice_loss():
 
 
 def test_random_weighted_binary_cross_entropy():
+    """
+    Test the output for the weighted binary cross entropy
+    with random weights.
+    """
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
@@ -125,11 +144,16 @@ def test_random_weighted_binary_cross_entropy():
 
     test_output = loss_fn(true_input, test_input).numpy()
     assert test_output.shape == output.shape
-    #there is an unknown epsilon, so we don't expect them to be exactly close
+    # there is an unknown epsilon in the tf calculation,
+    # so we don't expect them to be exactly close
     assert np.allclose(output, test_output, rtol=1e-3, atol=1e-3)
 
 
 def test_random_weighted_masked_binary_cross_entropy():
+    """
+    Test the output for the weighted binary cross entropy
+    with random weights applied and censoring of labels that are missing.
+    """
     np.random.seed(0)
     class_num = 5
     test_input = np.random.uniform(0, 1, size=(1, 128, 128, class_num))
