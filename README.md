@@ -8,10 +8,12 @@ In this repository, I investigate ways to semantically segment buildings and roa
 
 Below we display an example of an input image and the corresponding ground truth and predicted road network and building footprints.
 
+### Input Image
 <div style="text-align:center">
  
  <img src="https://raw.githubusercontent.com/Luke-Pratley/building_road_segmentation/getting_ready_for_submission/Vegas_input.png" /></div>
- 
+
+### Predicted Labels
 <div style="text-align:center">
 <img src="https://raw.githubusercontent.com/Luke-Pratley/building_road_segmentation/getting_ready_for_submission/Vegas_output.png" />
 </div>
