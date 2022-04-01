@@ -4,6 +4,9 @@
 
 In this repository, I investigate ways to semantically segment buildings and roads in top down. The motivation is that humanitarian and natural disasters can impact roads and buildings, and having a tool that can quickly survey them is useful. I make use of tensorflow to create a UNet and perform the prediction.
 
+## Example
+![Input](https://raw.githubusercontent.com/Luke-Pratley/building_road_segmentation/getting_ready_for_submission/Vegas_input.png)
+
 ## The Data
 
 The training and test data is taken from two SpaceNet competitions [2 and 3](https://spacenet.ai/spacenet-buildings-dataset-v2/), where the road and building data are cross matched. The foler `data_cleaning_EDA` holds the notebooks that cover the EDA and data cleaning process.
