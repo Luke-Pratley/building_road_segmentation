@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python application
+name: building_road_segmentation
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-
+    # We choose to run the tests on linux
     runs-on: ubuntu-latest
 
     steps:
@@ -23,12 +23,15 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade --no-cache-dir setuptools==58.0.2
+        # We install the lint tester
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         sudo add-apt-repository ppa:ubuntugis/ppa
         sudo apt-get update
+        # We install gdal, which is needed for geopandas and rasterio
         sudo apt-get install gdal-bin libgdal-dev
         $CONDA/bin/conda install --channel conda-forge --override-channels "gdal>2.2.4"
+        # We install all the basics, geopandas, rasterio, numpy, and tesnorflow
         $CONDA/bin/conda install -c conda-forge geopandas
         $CONDA/bin/conda install -c conda-forge rasterio
         $CONDA/bin/conda install -c conda-forge numpy
