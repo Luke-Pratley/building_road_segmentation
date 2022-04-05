@@ -17,6 +17,7 @@ Below we display an example of an input image and the corresponding ground truth
 <div style="text-align:center">
 <img src="https://raw.githubusercontent.com/Luke-Pratley/building_road_segmentation/getting_ready_for_submission/Vegas_output.png" />
 </div>
+
 ## The Data
 
 The training and test data is taken from two SpaceNet competitions [2 and 3](https://spacenet.ai/spacenet-buildings-dataset-v2/), where the road and building data are cross matched. The foler `data_cleaning_EDA` holds the notebooks that cover the EDA and data cleaning process.
